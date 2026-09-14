@@ -6,129 +6,58 @@
     <meta name="theme-color" content="#000000">
     <title>Controle Financeiro Multimeses</title>
     
-    <!-- Importação da fonte Maserat Arabic / Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maserat+Arabic:wght@700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
 
-    <!-- Link para o arquivo manifest.json real -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="nova.finanças_logo.png">
 
     <style>
         :root { 
-            --primary: #5950af; 
-            --primary-hover: #473f93; 
-            --success: #16a34a; 
-            --danger: #dc2626; 
-            --bg: #000000; 
-            --card: #121212; 
-            --card-border: #262626;
-            --text: #f8fafc; 
+            --primary: #5950af; --primary-hover: #473f93; 
+            --success: #16a34a; --danger: #dc2626; 
+            --bg: #000000; --card: #121212; --card-border: #262626; --text: #f8fafc; 
         }
-        
-        body { 
-            font-family: system-ui, -apple-system, sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 20px; 
-            padding-bottom: 90px; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 800px; margin: 0 auto; }
-        
-        .header-app {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 25px;
-            margin-bottom: 24px;
-        }
-
-        h1 { 
-            font-family: 'Maserat Arabic', 'Montserrat', sans-serif; 
-            font-weight: 700; 
-            color: #ffffff; 
-            margin: 0; 
-            font-size: 26px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .footer-app {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 40px;
-            margin-bottom: 20px;
-        }
-
-        .footer-logo {
-            width: 170px;
-            height: auto;
-            max-width: 70vw;
-            object-fit: contain;
-            opacity: 0.9;
-        }
-
+        .header-app { display: flex; justify-content: center; align-items: center; margin-top: 25px; margin-bottom: 24px; }
+        h1 { font-family: 'Maserat Arabic', 'Montserrat', sans-serif; font-weight: 700; color: #ffffff; margin: 0; font-size: 26px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-app { display: flex; justify-content: center; align-items: center; margin-top: 40px; margin-bottom: 20px; }
+        .footer-logo { width: 170px; height: auto; max-width: 70vw; object-fit: contain; opacity: 0.9; }
         h2 { text-align: center; color: #ffffff; margin-bottom: 10px; font-family: 'Montserrat', sans-serif; }
-        
         .bar-abas { display: flex; gap: 10px; align-items: center; justify-content: space-between; background: var(--card); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--card-border); margin-bottom: 20px; flex-wrap: wrap; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }
         .bar-abas select { padding: 8px 12px; background: #000000; color: #fff; border: 1px solid #333333; border-radius: 8px; font-weight: bold; font-size: 14px; outline: none; cursor: pointer; }
-        .btn-header { background: #5950af; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; transition: transform 0.1s ease, opacity 0.2s, background 0.2s; }
+        .btn-header { background: #5950af; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; transition: transform 0.1s ease; }
         .btn-header:active { transform: scale(0.96); }
         .btn-novo-item { background: var(--primary); }
-        .btn-novo-item:hover { background: var(--primary-hover); }
         .btn-excluir-aba { background: var(--danger); }
-
         .card { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--card-border); }
         .painel-resumos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .card-resumo { border-radius: 12px; padding: 15px; background: #5950af; border: 1px solid #7268d8; }
         .card-resumo.amarelo { background: #b45309; border: 1px solid #d97706; }
-        .card-resumo h3 { margin: 0 0 10px 0; font-size: 13px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; letter-spacing: 0.5px; }
+        .card-resumo h3 { margin: 0 0 10px 0; font-size: 13px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
         .linha-resumo { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
-        
         .modal-overlay { display: flex; opacity: 0; pointer-events: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 999; justify-content: center; align-items: center; transition: opacity 0.25s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; border: 1px solid var(--card-border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9); transform: translateY(20px) scale(0.95); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
+        .modal-card { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; border: 1px solid var(--card-border); transform: translateY(20px) scale(0.95); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
         .modal-overlay.active .modal-card { transform: translateY(0) scale(1); }
-        
         form input, form select { width: 100%; padding: 12px; margin-bottom: 12px; background: #000000; border: 1px solid #333333; color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; }
-        form input:focus, form select:focus { border-color: var(--primary); }
-        form button { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 5px; transition: background 0.2s, transform 0.1s; }
-        form button:hover { background: var(--primary-hover); }
-        form button:active { transform: scale(0.98); }
-        
+        form button { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 5px; }
         .btn-fechar-modal { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; font-weight: bold; }
-
         ul { list-style: none; padding: 0; margin: 5px 0 15px 0; }
-        li { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222222; align-items: center; font-size: 14px; transition: background 0.15s ease; border-radius: 6px; }
-        li:hover { background: rgba(255, 255, 255, 0.03); }
+        li { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222222; align-items: center; font-size: 14px; border-radius: 6px; }
         li.is-entrada { border-left: 4px solid var(--success); }
         li.is-despesa { border-left: 4px solid var(--danger); }
-        .btn-acao { background: transparent; border: none; cursor: pointer; font-size: 16px; margin-left: 8px; opacity: 0.8; transition: opacity 0.2s, transform 0.1s; }
-        .btn-acao:hover { opacity: 1; transform: scale(1.1); }
+        .btn-acao { background: transparent; border: none; cursor: pointer; font-size: 16px; margin-left: 8px; opacity: 0.8; }
         .subtitulo { font-size: 14px; color: #a5b4fc; background: #000000; padding: 8px 12px; border-radius: 8px; font-weight: bold; margin-top: 15px; border: 1px solid #1a1a1a; }
-
-        #syncIndicator { display: none; font-size: 12px; color: #a5b4fc; position: fixed; top: 10px; right: 10px; background: #121212; padding: 6px 12px; border-radius: 20px; border: 1px solid #333333; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-
-        .fab-button { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 56px; height: 56px; border-radius: 28px; font-size: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 900; transition: transform 0.2s, background 0.2s; }
-        .fab-button:hover { background: var(--primary-hover); }
-        .fab-button:active { transform: scale(0.9); }
-
-        @media (max-width: 480px) {
-            .header-app { margin-top: 20px; }
-            h1 { font-size: 22px; }
-            .footer-logo { width: 140px; }
-        }
+        #syncIndicator { display: none; font-size: 12px; color: #a5b4fc; position: fixed; top: 10px; right: 10px; background: #121212; padding: 6px 12px; border-radius: 20px; border: 1px solid #333333; z-index: 1000; }
+        .fab-button { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 56px; height: 56px; border-radius: 28px; font-size: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 900; }
     </style>
 </head>
 <body>
 
-<div id="syncIndicator">🔄 Sincronizando...</div>
+<div id="syncIndicator">⚡ Sincronizando em segundo plano...</div>
 
 <div class="container">
     <div class="header-app">
@@ -143,7 +72,7 @@
         <div style="display:flex; gap:6px;">
             <button class="btn-header btn-novo-item" onclick="abrirModalFormulario()">+ Lançamento</button>
             <button class="btn-header" onclick="criarNovaAba()">+ Novo Mês</button>
-            <button class="btn-header btn-excluir-aba" onclick="excluirAbaAtual()" title="Excluir Mês Atual">🗑️ Excluir Mês</button>
+            <button class="btn-header btn-excluir-aba" onclick="excluirAbaAtual()">🗑️ Excluir Mês</button>
         </div>
     </div>
 
@@ -170,18 +99,15 @@
 
     <div class="card">
         <h2>Lançamentos</h2>
-        <div id="status" style="text-align:center; color:#94a3b8; display:none;">Carregando dados...</div>
-        
+        <div id="status" style="text-align:center; color:#94a3b8; display:none;">Carregando...</div>
         <div class="subtitulo">📅 Período do Dia 05</div>
         <ul id="lista05"></ul>
-
         <div class="subtitulo">📅 Período do Dia 20</div>
         <ul id="lista20"></ul>
     </div>
 
-    <!-- Logo no rodapé -->
     <div class="footer-app">
-        <img src="nova.finanças_logo.png" alt="Logo Nova Finanças" class="footer-logo">
+        <img src="nova.finanças_logo.png" alt="Logo" class="footer-logo">
     </div>
 </div>
 
@@ -194,33 +120,28 @@
             <input type="hidden" id="editId" value="">
             <label style="font-size: 12px; color: #94a3b8;">Descrição</label>
             <input type="text" id="descricao" placeholder="Ex: Mercado" required autocomplete="off">
-            
             <label style="font-size: 12px; color: #94a3b8;">Valor (R$)</label>
             <input type="number" step="0.01" id="valor" placeholder="Ex: 150.00" required>
-            
             <label style="font-size: 12px; color: #94a3b8;">Data</label>
             <input type="text" id="dataPgto" placeholder="Ex: 05 ou 20/10" required>
-            
-            <label style="font-size: 12px; color: #94a3b8;">Tipo de Lançamento</label>
+            <label style="font-size: 12px; color: #94a3b8;">Tipo</label>
             <select id="tipo">
                 <option value="entrada">Entrada (Renda)</option>
                 <option value="despesa">Despesa (Gasto)</option>
             </select>
-            
-            <button type="submit" id="btnSalvar">Salvar no Sheets</button>
+            <button type="submit" id="btnSalvar">Salvar Instantaneamente</button>
         </form>
     </div>
 </div>
 
-<button class="fab-button" onclick="abrirModalFormulario()" title="Adicionar Lançamento">+</button>
+<button class="fab-button" onclick="abrirModalFormulario()">+</button>
 
 <script>
-    // Nova URL exata fornecida do Google Apps Script
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzEZaOcZDYfKfrQF6O47xMOOncflmnPqwSOocU_X_OLB0eKDAUAsOqDgEDlAw7MGNY/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwKReH5Q7ZB-7f7uRzSCuyg-iyE8ayob48Sq6xFamAahEuRlGwwtMS7HzJHMYDBeAPO/exec';
     
-    let dadosLocais = [];
+    let cacheGlobalDados = [];
     let abaSelecionada = 'Outubro';
-    let listaAbasGlobal = [];
+    let listaAbasGlobal = ['Outubro'];
 
     function mostrarSync(ativo) {
         document.getElementById('syncIndicator').style.display = ativo ? 'block' : 'none';
@@ -228,36 +149,36 @@
 
     async function inicializarApp() {
         document.getElementById('status').style.display = 'block';
-        await carregarDados();
+        await carregarDadosSilencioso();
+        document.getElementById('status').style.display = 'none';
+    }
+
+    async function carregarDadosSilencioso() {
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            if (Array.isArray(data)) {
+                cacheGlobalDados = data;
+                const abasUnicas = [...new Set(data.map(item => String(item.aba)))];
+                if (abasUnicas.length > 0) listaAbasGlobal = abasUnicas;
+                if (!listaAbasGlobal.includes(abaSelecionada)) abaSelecionada = listaAbasGlobal[0];
+                atualizarSelectAbas();
+                filtrarErenderizar();
+            }
+        } catch (e) {
+            console.error("Erro de sincronização", e);
+        }
     }
 
     async function carregarDados() {
         mostrarSync(true);
-        try {
-            const response = await fetch(API_URL);
-            const data = await response.json();
-
-            const abasUnicas = [...new Set(data.map(item => item.aba))];
-            listaAbasGlobal = abasUnicas.length > 0 ? abasUnicas : ['Outubro'];
-
-            if (!listaAbasGlobal.includes(abaSelecionada)) {
-                abaSelecionada = listaAbasGlobal[0];
-            }
-
-            atualizarSelectAbas();
-            filtrarDadosLocais(data);
-        } catch (e) {
-            console.error(e);
-            document.getElementById('status').innerText = 'Erro ao carregar os dados.';
-        } finally {
-            document.getElementById('status').style.display = 'none';
-            mostrarSync(false);
-        }
+        await carregarDadosSilencioso();
+        mostrarSync(false);
     }
 
-    function filtrarDadosLocais(todosOsDados) {
-        dadosLocais = todosOsDados.filter(item => String(item.aba) === String(abaSelecionada));
-        renderizarTela();
+    function filtrarErenderizar() {
+        const dadosLocais = cacheGlobalDados.filter(item => String(item.aba) === String(abaSelecionada));
+        renderizarTela(dadosLocais);
     }
 
     function atualizarSelectAbas() {
@@ -274,7 +195,7 @@
 
     function trocarAba(novaAba) {
         abaSelecionada = novaAba;
-        carregarDados();
+        filtrarErenderizar();
     }
 
     function abrirModalFormulario() {
@@ -287,42 +208,47 @@
         document.getElementById('editId').value = '';
         document.getElementById('formTransacao').reset();
         document.getElementById('modalTitulo').innerText = 'Incluir Lançamento';
-        document.getElementById('btnSalvar').innerText = 'Salvar no Sheets';
     }
 
     function fecharModalAoClicarFora(e) {
         if (e.target.id === 'modalForm') fecharModalFormulario();
     }
 
+    // --- AÇÕES INSTANTÂNEAS (Otimistic UI) ---
+
     async function criarNovaAba() {
         const nomeAba = prompt('Digite o nome do novo mês (ex: Novembro):');
-        if (!nomeAba || nomeAba.trim() === '') return;
-
+        if (!nomeAba || !nomeAba.trim()) return;
         const nomeLimpo = nomeAba.trim();
-        if (listaAbasGlobal.includes(nomeLimpo)) {
-            alert('Este mês já existe!');
-            return;
-        }
+        if (listaAbasGlobal.includes(nomeLimpo)) { alert('Mês já existe!'); return; }
+
+        // Atualização instantânea na tela
+        listaAbasGlobal.push(nomeLimpo);
+        abaSelecionada = nomeLimpo;
+        atualizarSelectAbas();
+        filtrarErenderizar();
 
         mostrarSync(true);
-        const url = `${API_URL}?action=insert&aba=${encodeURIComponent(nomeLimpo)}&tipo=entrada&descricao=${encodeURIComponent('Início do Mês')}&valor=0.00&data_pgto=01`;
-        await fetch(url);
+        await fetch(`${API_URL}?action=insert&aba=${encodeURIComponent(nomeLimpo)}&tipo=entrada&descricao=${encodeURIComponent('Início do Mês')}&valor=0.00&data_pgto=01`);
+        await carregarDadosSilencioso();
         mostrarSync(false);
-
-        abaSelecionada = nomeLimpo;
-        await carregarDados();
     }
 
     async function excluirAbaAtual() {
-        if (!confirm(`Deseja apagar o mês "${abaSelecionada}" e todos os seus lançamentos?`)) return;
+        if (!confirm(`Deseja apagar o mês "${abaSelecionada}"?`)) return;
+
+        // Atualização instantânea na tela
+        cacheGlobalDados = cacheGlobalDados.filter(i => String(i.aba) !== String(abaSelecionada));
+        listaAbasGlobal = listaAbasGlobal.filter(a => a !== abaSelecionada);
+        if (listaAbasGlobal.length === 0) listaAbasGlobal = ['Outubro'];
+        abaSelecionada = listaAbasGlobal[0];
+        atualizarSelectAbas();
+        filtrarErenderizar();
 
         mostrarSync(true);
-        const url = `${API_URL}?action=delete&aba=${encodeURIComponent(abaSelecionada)}`;
-        await fetch(url);
+        await fetch(`${API_URL}?action=delete&aba=${encodeURIComponent(abaSelecionada)}`);
+        await carregarDadosSilencioso();
         mostrarSync(false);
-
-        abaSelecionada = 'Outubro';
-        await carregarDados();
     }
 
     async function salvarTransacao(e) {
@@ -333,6 +259,22 @@
         const dataPgto = document.getElementById('dataPgto').value;
         const tipo = document.getElementById('tipo').value;
 
+        fecharModalFormulario();
+
+        if (idEdit) {
+            // Atualização otimista local
+            const index = cacheGlobalDados.findIndex(i => String(i.id) === String(idEdit));
+            if (index !== -1) {
+                cacheGlobalDados[index] = { id: idEdit, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo };
+            }
+        } else {
+            // Inserção otimista local temporária
+            const tempId = 'temp_' + Date.now();
+            cacheGlobalDados.push({ id: tempId, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo });
+        }
+        filtrarErenderizar();
+
+        // Envio em segundo plano
         mostrarSync(true);
         let url = `${API_URL}?`;
         if (idEdit) {
@@ -340,41 +282,37 @@
         } else {
             url += `action=insert&aba=${encodeURIComponent(abaSelecionada)}&descricao=${encodeURIComponent(descricao)}&valor=${valor}&data_pgto=${encodeURIComponent(dataPgto)}&tipo=${tipo}`;
         }
-
         await fetch(url);
+        await carregarDadosSilencioso();
         mostrarSync(false);
-
-        fecharModalFormulario();
-        await carregarDados();
     }
 
     function prepararEdicao(id) {
-        const item = dadosLocais.find(i => String(i.id) === String(id));
+        const item = cacheGlobalDados.find(i => String(i.id) === String(id));
         if (!item) return;
-
         document.getElementById('editId').value = item.id;
         document.getElementById('descricao').value = item.descricao;
         document.getElementById('valor').value = item.valor;
         document.getElementById('dataPgto').value = item.data_pgto;
         document.getElementById('tipo').value = item.tipo;
-
         document.getElementById('modalTitulo').innerText = 'Editar Lançamento';
-        document.getElementById('btnSalvar').innerText = 'Atualizar Item';
-        
         abrirModalFormulario();
     }
 
     async function excluirTransacao(id) {
         if (!confirm('Apagar este item?')) return;
 
+        // Remoção otimista imediata na tela
+        cacheGlobalDados = cacheGlobalDados.filter(i => String(i.id) !== String(id));
+        filtrarErenderizar();
+
         mostrarSync(true);
-        const url = `${API_URL}?action=delete&id=${id}`;
-        await fetch(url);
+        await fetch(`${API_URL}?action=delete&id=${id}`);
+        await carregarDadosSilencioso();
         mostrarSync(false);
-        await carregarDados();
     }
 
-    function renderizarTela() {
+    function renderizarTela(dadosLocais) {
         let r05 = 0, d05 = 0, r20 = 0, d20 = 0;
         const ul05 = document.getElementById('lista05');
         const ul20 = document.getElementById('lista20');
@@ -414,7 +352,6 @@
         document.getElementById('r05').innerText = `R$ ${r05.toFixed(2)}`;
         document.getElementById('d05').innerText = `R$ ${d05.toFixed(2)}`;
         document.getElementById('res05').innerText = `R$ ${(r05 - d05).toFixed(2)}`;
-
         document.getElementById('r20').innerText = `R$ ${r20.toFixed(2)}`;
         document.getElementById('d20').innerText = `R$ ${d20.toFixed(2)}`;
         document.getElementById('res20').innerText = `R$ ${(r20 - d20).toFixed(2)}`;
