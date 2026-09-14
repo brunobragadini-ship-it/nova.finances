@@ -215,8 +215,8 @@
 <button class="fab-button" onclick="abrirModalFormulario()" title="Adicionar Lançamento">+</button>
 
 <script>
-    // URL do seu Web App gerada no Google Apps Script
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxqkiW2QfsnQWm1SzVNMvzQggrNDuBReqsAx0o_CHGUmJX3qnljDqJtQM-MeEaI-tcr/exec';
+    // Nova URL exata fornecida do Google Apps Script
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzEZaOcZDYfKfrQF6O47xMOOncflmnPqwSOocU_X_OLB0eKDAUAsOqDgEDlAw7MGNY/exec';
     
     let dadosLocais = [];
     let abaSelecionada = 'Outubro';
@@ -305,13 +305,8 @@
         }
 
         mostrarSync(true);
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'insert',
-                data: { aba: nomeLimpo, tipo: 'entrada', descricao: 'Início do Mês', valor: 0.00, data_pgto: '01' }
-            })
-        });
+        const url = `${API_URL}?action=insert&aba=${encodeURIComponent(nomeLimpo)}&tipo=entrada&descricao=${encodeURIComponent('Início do Mês')}&valor=0.00&data_pgto=01`;
+        await fetch(url);
         mostrarSync(false);
 
         abaSelecionada = nomeLimpo;
@@ -322,10 +317,8 @@
         if (!confirm(`Deseja apagar o mês "${abaSelecionada}" e todos os seus lançamentos?`)) return;
 
         mostrarSync(true);
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'delete', data: { aba: abaSelecionada } })
-        });
+        const url = `${API_URL}?action=delete&aba=${encodeURIComponent(abaSelecionada)}`;
+        await fetch(url);
         mostrarSync(false);
 
         abaSelecionada = 'Outubro';
@@ -341,23 +334,14 @@
         const tipo = document.getElementById('tipo').value;
 
         mostrarSync(true);
+        let url = `${API_URL}?`;
         if (idEdit) {
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'update',
-                    data: { id: idEdit, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo }
-                })
-            });
+            url += `action=update&id=${idEdit}&aba=${encodeURIComponent(abaSelecionada)}&descricao=${encodeURIComponent(descricao)}&valor=${valor}&data_pgto=${encodeURIComponent(dataPgto)}&tipo=${tipo}`;
         } else {
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'insert',
-                    data: { aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo }
-                })
-            });
+            url += `action=insert&aba=${encodeURIComponent(abaSelecionada)}&descricao=${encodeURIComponent(descricao)}&valor=${valor}&data_pgto=${encodeURIComponent(dataPgto)}&tipo=${tipo}`;
         }
+
+        await fetch(url);
         mostrarSync(false);
 
         fecharModalFormulario();
@@ -384,10 +368,8 @@
         if (!confirm('Apagar este item?')) return;
 
         mostrarSync(true);
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'delete', data: { id: id } })
-        });
+        const url = `${API_URL}?action=delete&id=${id}`;
+        await fetch(url);
         mostrarSync(false);
         await carregarDados();
     }
