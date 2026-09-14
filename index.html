@@ -15,9 +15,6 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="nova.finanças_logo.png">
 
-    <!-- SDK do Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         :root { 
             --primary: #5950af; 
@@ -210,7 +207,7 @@
                 <option value="despesa">Despesa (Gasto)</option>
             </select>
             
-            <button type="submit" id="btnSalvar">Salvar no Supabase</button>
+            <button type="submit" id="btnSalvar">Salvar no Sheets</button>
         </form>
     </div>
 </div>
@@ -218,11 +215,8 @@
 <button class="fab-button" onclick="abrirModalFormulario()" title="Adicionar Lançamento">+</button>
 
 <script>
-    // Suas credenciais oficiais do Supabase
-    const SUPABASE_URL = 'https://knkafsvncaohrnekekws.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_ByEJY2hmeoE6OsvA2ffTVw_zLCctTqt';
-    
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // URL do seu Web App gerada no Google Apps Script
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxqkiW2QfsnQWm1SzVNMvzQggrNDuBReqsAx0o_CHGUmJX3qnljDqJtQM-MeEaI-tcr/exec';
     
     let dadosLocais = [];
     let abaSelecionada = 'Outubro';
@@ -234,12 +228,14 @@
 
     async function inicializarApp() {
         document.getElementById('status').style.display = 'block';
-        mostrarSync(true);
+        await carregarDados();
+    }
 
+    async function carregarDados() {
+        mostrarSync(true);
         try {
-            // Busca todas as transações para descobrir quais abas/meses existem
-            const { data, error } = await _supabase.from('transacoes').select('*');
-            if (error) throw error;
+            const response = await fetch(API_URL);
+            const data = await response.json();
 
             const abasUnicas = [...new Set(data.map(item => item.aba))];
             listaAbasGlobal = abasUnicas.length > 0 ? abasUnicas : ['Outubro'];
@@ -260,20 +256,8 @@
     }
 
     function filtrarDadosLocais(todosOsDados) {
-        dadosLocais = todosOsDados.filter(item => item.aba === abaSelecionada);
+        dadosLocais = todosOsDados.filter(item => String(item.aba) === String(abaSelecionada));
         renderizarTela();
-    }
-
-    async function carregarDados() {
-        mostrarSync(true);
-        const { data, error } = await _supabase.from('transacoes').select('*');
-        mostrarSync(false);
-        if (!error && data) {
-            const abasUnicas = [...new Set(data.map(item => item.aba))];
-            if (abasUnicas.length > 0) listaAbasGlobal = abasUnicas;
-            atualizarSelectAbas();
-            filtrarDadosLocais(data);
-        }
     }
 
     function atualizarSelectAbas() {
@@ -303,7 +287,7 @@
         document.getElementById('editId').value = '';
         document.getElementById('formTransacao').reset();
         document.getElementById('modalTitulo').innerText = 'Incluir Lançamento';
-        document.getElementById('btnSalvar').innerText = 'Salvar no Supabase';
+        document.getElementById('btnSalvar').innerText = 'Salvar no Sheets';
     }
 
     function fecharModalAoClicarFora(e) {
@@ -320,22 +304,15 @@
             return;
         }
 
-        // Insere um item temporário de inicialização para fixar a nova aba no banco
         mostrarSync(true);
-        const { error } = await _supabase.from('transacoes').insert([{
-            aba: nomeLimpo,
-            tipo: 'entrada',
-            descricao: 'Início do Mês',
-            valor: 0.00,
-            data_pgto: '01'
-        }]);
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'insert',
+                data: { aba: nomeLimpo, tipo: 'entrada', descricao: 'Início do Mês', valor: 0.00, data_pgto: '01' }
+            })
+        });
         mostrarSync(false);
-
-        if (error) {
-            alert('Erro ao criar novo mês.');
-            console.error(error);
-            return;
-        }
 
         abaSelecionada = nomeLimpo;
         await carregarDados();
@@ -345,14 +322,11 @@
         if (!confirm(`Deseja apagar o mês "${abaSelecionada}" e todos os seus lançamentos?`)) return;
 
         mostrarSync(true);
-        const { error } = await _supabase.from('transacoes').delete().eq('aba', abaSelecionada);
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'delete', data: { aba: abaSelecionada } })
+        });
         mostrarSync(false);
-
-        if (error) {
-            alert('Erro ao excluir mês.');
-            console.error(error);
-            return;
-        }
 
         abaSelecionada = 'Outubro';
         await carregarDados();
@@ -368,16 +342,21 @@
 
         mostrarSync(true);
         if (idEdit) {
-            // Atualizar item existente
-            await _supabase.from('transacoes').update({
-                descricao, valor, data_pgto: dataPgto, tipo
-            }).eq('id', idEdit);
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'update',
+                    data: { id: idEdit, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo }
+                })
+            });
         } else {
-            // Inserir novo item
-            await _supabase.from('transacoes').insert([{
-                aba: abaSelecionada,
-                descricao, valor, data_pgto: dataPgto, tipo
-            }]);
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'insert',
+                    data: { aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo }
+                })
+            });
         }
         mostrarSync(false);
 
@@ -386,7 +365,7 @@
     }
 
     function prepararEdicao(id) {
-        const item = dadosLocais.find(i => i.id === id);
+        const item = dadosLocais.find(i => String(i.id) === String(id));
         if (!item) return;
 
         document.getElementById('editId').value = item.id;
@@ -405,7 +384,10 @@
         if (!confirm('Apagar este item?')) return;
 
         mostrarSync(true);
-        await _supabase.from('transacoes').delete().eq('id', id);
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'delete', data: { id: id } })
+        });
         mostrarSync(false);
         await carregarDados();
     }
@@ -433,8 +415,8 @@
                     <span style="font-weight:bold; color:${item.tipo === 'entrada' ? '#16a34a' : '#dc2626'}">
                         ${item.tipo === 'entrada' ? '+' : '-'} R$ ${val.toFixed(2)}
                     </span>
-                    <button class="btn-acao" onclick="prepararEdicao(${item.id})" title="Editar">✏️</button>
-                    <button class="btn-acao" onclick="excluirTransacao(${item.id})" title="Excluir" style="color:#ef4444;">🗑️</button>
+                    <button class="btn-acao" onclick="prepararEdicao('${item.id}')" title="Editar">✏️</button>
+                    <button class="btn-acao" onclick="excluirTransacao('${item.id}')" title="Excluir" style="color:#ef4444;">🗑️</button>
                 </div>
             `;
 
@@ -462,20 +444,6 @@
         document.getElementById('resTot').innerText = `R$ ${(totalRenda - totalDespesas).toFixed(2)}`;
     }
 
-    // Listener Realtime do Supabase (Sincronização Instantânea Automática)
-    _supabase
-        .channel('public:transacoes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'transacoes' }, payload => {
-            console.log('Alteração detectada em tempo real!', payload);
-            carregarDados();
-        })
-        .subscribe();
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
-
-    // Inicia a aplicação buscando do Supabase
     inicializarApp();
 </script>
 
