@@ -28,35 +28,34 @@
 
         body { 
             font-family: 'Montserrat', system-ui, -apple-system, sans-serif; 
-            /* Gradiente Super Dark: Roxo bem fechado no topo transicionando para o preto absoluto */
             background: radial-gradient(circle at 50% -10%, #16122d 0%, #080711 45%, #030305 100%); 
             background-attachment: fixed;
             color: var(--text); 
             margin: 0; 
-            padding: 20px; 
-            padding-bottom: 90px; 
+            padding: 16px; 
+            padding-bottom: 85px; 
             -webkit-tap-highlight-color: transparent; 
         }
 
-        .container { max-width: 850px; margin: 0 auto; }
+        .container { max-width: 780px; margin: 0 auto; }
 
-        .header-app { display: flex; justify-content: center; align-items: center; margin-top: 15px; margin-bottom: 24px; }
-        h1 { font-family: 'Montserrat', sans-serif; font-weight: 700; color: #ffffff; margin: 0; font-size: 24px; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        .header-app { display: flex; justify-content: center; align-items: center; margin-top: 10px; margin-bottom: 18px; }
+        h1 { font-family: 'Montserrat', sans-serif; font-weight: 700; color: #ffffff; margin: 0; font-size: 21px; text-align: center; text-transform: uppercase; letter-spacing: 1.5px; }
 
         .bar-abas { 
-            display: flex; gap: 10px; align-items: center; justify-content: space-between; 
+            display: flex; gap: 8px; align-items: center; justify-content: space-between; 
             background: var(--card); backdrop-filter: blur(12px);
-            padding: 12px 18px; border-radius: 14px; border: 1px solid var(--card-border); 
-            margin-bottom: 24px; flex-wrap: wrap; box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
+            padding: 10px 14px; border-radius: 12px; border: 1px solid var(--card-border); 
+            margin-bottom: 18px; flex-wrap: wrap; box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
         }
         .bar-abas select { 
-            padding: 8px 14px; background: #060609; color: #fff; border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 8px; font-weight: bold; font-size: 14px; outline: none; cursor: pointer; 
+            padding: 7px 12px; background: #060609; color: #fff; border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 7px; font-weight: bold; font-size: 13px; outline: none; cursor: pointer; 
         }
 
         .btn-header { 
             background: rgba(255, 255, 255, 0.04); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.08); 
-            padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; 
+            padding: 7px 12px; border-radius: 7px; font-weight: 600; cursor: pointer; font-size: 12px; 
             transition: all 0.2s ease; 
         }
         .btn-header:hover { background: rgba(255, 255, 255, 0.08); }
@@ -67,67 +66,74 @@
         .btn-excluir-aba:hover { background: rgba(239, 68, 68, 0.1); }
 
         .painel-resumos { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 18px; 
         }
         .card-resumo { 
-            border-radius: 16px; padding: 20px; 
+            border-radius: 14px; padding: 16px; 
             background: rgba(14, 15, 24, 0.7); backdrop-filter: blur(12px);
             border: 1px solid rgba(120, 119, 198, 0.15); 
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .card-resumo:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(88, 86, 214, 0.15); }
-        .card-resumo h3 { margin: 0 0 8px 0; font-size: 14px; text-align: center; color: var(--text-muted); font-weight: 500; }
+        .card-resumo h3 { margin: 0 0 6px 0; font-size: 13px; text-align: center; color: var(--text-muted); font-weight: 500; }
 
-        .valor-destaque { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 16px; color: #ffffff; letter-spacing: -0.5px; }
+        .valor-destaque { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 12px; color: #ffffff; letter-spacing: -0.5px; }
         .valor-destaque.negativo { color: var(--danger); }
 
-        .linha-resumo { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--text-muted); }
+        .linha-resumo { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: var(--text-muted); }
         .linha-resumo strong { color: #f1f5f9; font-weight: 600; }
 
         .card { 
             background: var(--card); backdrop-filter: blur(12px);
-            padding: 24px; border-radius: 20px; margin-bottom: 20px; 
+            padding: 18px; border-radius: 16px; margin-bottom: 16px; 
             border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
         }
-        .card h2 { text-align: left; margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 700; }
+        .card h2 { text-align: left; margin-top: 0; margin-bottom: 16px; font-size: 19px; font-weight: 700; }
 
         .subtitulo { 
-            font-size: 13px; color: #cbd5e1; background: rgba(255, 255, 255, 0.03); 
-            padding: 8px 14px; border-radius: 20px; font-weight: 600; margin-top: 20px; margin-bottom: 10px;
+            font-size: 12px; color: #cbd5e1; background: rgba(255, 255, 255, 0.03); 
+            padding: 6px 12px; border-radius: 16px; font-weight: 600; margin-top: 16px; margin-bottom: 8px;
             display: inline-block; border: 1px solid rgba(255, 255, 255, 0.06); 
         }
 
-        ul { list-style: none; padding: 0; margin: 0 0 15px 0; }
+        ul { list-style: none; padding: 0; margin: 0 0 12px 0; }
         li { 
-            display: flex; justify-content: space-between; padding: 14px 12px; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04); align-items: center; font-size: 14px; 
-            transition: background 0.15s ease;
+            display: flex; justify-content: space-between; padding: 12px 10px; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04); align-items: center; font-size: 13.5px; 
+            transition: background 0.15s ease; gap: 8px;
         }
         li:hover { background: rgba(255, 255, 255, 0.02); }
         li.is-entrada { border-left: 3px solid var(--success); border-radius: 4px 0 0 4px; }
         li.is-despesa { border-left: 3px solid var(--danger); border-radius: 4px 0 0 4px; }
 
-        .btn-acao { background: transparent; border: none; cursor: pointer; font-size: 15px; margin-left: 10px; opacity: 0.5; transition: opacity 0.2s; color: #fff; }
+        /* Garante que o valor e sinal fiquem SEMPRE na mesma linha */
+        .valor-item { 
+            font-weight: 700; 
+            font-size: 14px; 
+            white-space: nowrap; 
+        }
+
+        .btn-acao { background: transparent; border: none; cursor: pointer; font-size: 14px; margin-left: 6px; opacity: 0.5; transition: opacity 0.2s; color: #fff; padding: 0; }
         .btn-acao:hover { opacity: 1; }
 
-        .footer-app { display: flex; justify-content: center; align-items: center; margin-top: 40px; margin-bottom: 20px; }
+        .footer-app { display: flex; justify-content: center; align-items: center; margin-top: 35px; margin-bottom: 15px; }
         .footer-logo { width: 170px; height: auto; max-width: 70vw; object-fit: contain; opacity: 0.6; }
 
         .modal-overlay { display: flex; opacity: 0; pointer-events: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 999; justify-content: center; align-items: center; transition: opacity 0.25s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: #0b0b12; padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; border: 1px solid var(--card-border); transform: translateY(20px) scale(0.95); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
+        .modal-card { background: #0b0b12; padding: 20px; border-radius: 16px; width: 88%; max-width: 380px; border: 1px solid var(--card-border); transform: translateY(20px) scale(0.95); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
         .modal-overlay.active .modal-card { transform: translateY(0) scale(1); }
-        form input, form select { width: 100%; padding: 12px; margin-bottom: 12px; background: #050508; border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; }
-        form button { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 5px; }
-        .btn-fechar-modal { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; font-weight: bold; }
-        #syncIndicator { display: none; font-size: 12px; color: #a5b4fc; position: fixed; top: 10px; right: 10px; background: #09090e; padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
-        .fab-button { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 56px; height: 56px; border-radius: 28px; font-size: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 900; }
+        form input, form select { width: 100%; padding: 10px; margin-bottom: 10px; background: #050508; border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 13px; outline: none; }
+        form button { width: 100%; padding: 10px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 5px; }
+        .btn-fechar-modal { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; font-weight: bold; }
+        #syncIndicator { display: none; font-size: 11px; color: #a5b4fc; position: fixed; top: 10px; right: 10px; background: #09090e; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
+        .fab-button { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 25px; font-size: 22px; box-shadow: 0 8px 20px rgba(0,0,0,0.8); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 900; }
     </style>
 </head>
 <body>
 
-<div id="syncIndicator">⚡ Sincronizando em segundo plano...</div>
+<div id="syncIndicator">⚡ Sincronizando...</div>
 
 <div class="container">
     <div class="header-app">
@@ -136,10 +142,10 @@
 
     <div class="bar-abas">
         <div>
-            <label style="font-size:13px; color:#94a3b8; margin-right:8px;">Mês / Aba:</label>
+            <label style="font-size:12px; color:#94a3b8; margin-right:6px;">Mês / Aba:</label>
             <select id="selectAba" onchange="trocarAba(this.value)"></select>
         </div>
-        <div style="display:flex; gap:6px;">
+        <div style="display:flex; gap:5px;">
             <button class="btn-header btn-novo-item" onclick="abrirModalFormulario()">+ Lançamento</button>
             <button class="btn-header" onclick="criarNovaAba()">+ Novo Mês</button>
             <button class="btn-header btn-excluir-aba" onclick="excluirAbaAtual()">🗑️ Excluir Mês</button>
@@ -184,17 +190,17 @@
 <div id="modalForm" class="modal-overlay" onclick="fecharModalAoClicarFora(event)">
     <div class="modal-card">
         <button class="btn-fechar-modal" onclick="fecharModalFormulario()">✕</button>
-        <h2 id="modalTitulo" style="margin-top:0;">Incluir Lançamento</h2>
+        <h2 id="modalTitulo" style="margin-top:0; font-size:18px;">Incluir Lançamento</h2>
         
         <form id="formTransacao" onsubmit="salvarTransacao(event)">
             <input type="hidden" id="editId" value="">
-            <label style="font-size: 12px; color: #94a3b8;">Descrição</label>
+            <label style="font-size: 11px; color: #94a3b8;">Descrição</label>
             <input type="text" id="descricao" placeholder="Ex: Mercado" required autocomplete="off">
-            <label style="font-size: 12px; color: #94a3b8;">Valor (R$)</label>
+            <label style="font-size: 11px; color: #94a3b8;">Valor (R$)</label>
             <input type="number" step="0.01" id="valor" placeholder="Ex: 150.00" required>
-            <label style="font-size: 12px; color: #94a3b8;">Data</label>
+            <label style="font-size: 11px; color: #94a3b8;">Data</label>
             <input type="text" id="dataPgto" placeholder="Ex: 05 ou 20/10" required>
-            <label style="font-size: 12px; color: #94a3b8;">Tipo</label>
+            <label style="font-size: 11px; color: #94a3b8;">Tipo</label>
             <select id="tipo">
                 <option value="entrada">Entrada (Renda)</option>
                 <option value="despesa">Despesa (Gasto)</option>
@@ -393,12 +399,12 @@
             const li = document.createElement('li');
             li.className = item.tipo === 'entrada' ? 'is-entrada' : 'is-despesa';
             li.innerHTML = `
-                <div>
-                    <strong style="font-size:15px; font-weight:600;">${item.descricao}</strong><br>
-                    <span style="font-size:12px; color:var(--text-muted);">Data: ${dataTexto}</span>
+                <div style="flex:1; min-width: 0; padding-right: 6px;">
+                    <strong style="font-size:14px; font-weight:600; word-break: break-word;">${item.descricao}</strong><br>
+                    <span style="font-size:11.5px; color:var(--text-muted);">Data: ${dataTexto}</span>
                 </div>
-                <div style="display:flex; align-items:center;">
-                    <span style="font-weight:700; font-size:15px; color:${item.tipo === 'entrada' ? 'var(--success)' : 'var(--danger)'}">
+                <div style="display:flex; align-items:center; flex-shrink: 0;">
+                    <span class="valor-item" style="color:${item.tipo === 'entrada' ? 'var(--success)' : 'var(--danger)'}">
                         ${item.tipo === 'entrada' ? '+ ' : '- '}${formatarMoeda(val)}
                     </span>
                     <button class="btn-acao" onclick="prepararEdicao('${item.id}')" title="Editar">✏️</button>
