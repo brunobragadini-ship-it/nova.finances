@@ -212,7 +212,7 @@
 <button class="fab-button" onclick="abrirModalFormulario()">+</button>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzMTuyOCvbgqSlCl3pgol4NU8NIrOmVryxTqjYmeI0ij6kPMhPwBLAKfvJ47i83euGz/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwCN8ENIYGW8zFlv-q8UVA7YKVXKy8se3qD6_4kcfg9tlRUaYcDQgAFf9HYWgo329YA/exec';
     
     let cacheGlobalDados = [];
     let abaSelecionada = 'Setembro';
@@ -324,7 +324,6 @@
         const abaParaExcluir = abaSelecionada;
         if (!confirm(`Deseja realmente apagar todo o mês de "${abaParaExcluir}"?`)) return;
 
-        // Atualização Otimista no Front-end
         cacheGlobalDados = cacheGlobalDados.filter(i => String(i.aba).trim().toLowerCase() !== abaParaExcluir.toLowerCase());
         listaAbasGlobal = listaAbasGlobal.filter(a => a.toLowerCase() !== abaParaExcluir.toLowerCase());
         
@@ -437,7 +436,14 @@
         ul05.innerHTML = '';
         ul20.innerHTML = '';
 
-        dadosLocais.forEach(item => {
+        // ORDENAÇÃO: Garante que "entrada" sempre venha antes de "despesa"
+        const dadosOrdenados = [...dadosLocais].sort((a, b) => {
+            if (a.tipo === 'entrada' && b.tipo !== 'entrada') return -1;
+            if (a.tipo !== 'entrada' && b.tipo === 'entrada') return 1;
+            return 0;
+        });
+
+        dadosOrdenados.forEach(item => {
             const val = parseFloat(item.valor) || 0;
             const dataTexto = String(item.data_pgto || '');
             const ehDia20 = dataTexto.includes('20');
