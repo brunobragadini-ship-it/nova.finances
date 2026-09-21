@@ -107,7 +107,6 @@
         li.is-entrada { border-left: 3px solid var(--success); border-radius: 4px 0 0 4px; }
         li.is-despesa { border-left: 3px solid var(--danger); border-radius: 4px 0 0 4px; }
 
-        /* Garante que o valor e sinal fiquem SEMPRE na mesma linha */
         .valor-item { 
             font-weight: 700; 
             font-size: 14px; 
@@ -213,11 +212,11 @@
 <button class="fab-button" onclick="abrirModalFormulario()">+</button>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwKReH5Q7ZB-7f7uRzSCuyg-iyE8ayob48Sq6xFamAahEuRlGwwtMS7HzJHMYDBeAPO/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzMTuyOCvbgqSlCl3pgol4NU8NIrOmVryxTqjYmeI0ij6kPMhPwBLAKfvJ47i83euGz/exec';
     
     let cacheGlobalDados = [];
-    let abaSelecionada = 'Outubro';
-    let listaAbasGlobal = ['Outubro'];
+    let abaSelecionada = 'Setembro';
+    let listaAbasGlobal = ['Setembro'];
 
     function formatarMoeda(valor) {
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -239,9 +238,13 @@
             const data = await response.json();
             if (Array.isArray(data)) {
                 cacheGlobalDados = data;
-                const abasUnicas = [...new Set(data.map(item => String(item.aba)))];
-                if (abasUnicas.length > 0) listaAbasGlobal = abasUnicas;
-                if (!listaAbasGlobal.includes(abaSelecionada)) abaSelecionada = listaAbasGlobal[0];
+                const abasUnicas = [...new Set(data.map(item => String(item.aba).trim()))].filter(a => a.length > 0);
+                if (abasUnicas.length > 0) {
+                    listaAbasGlobal = abasUnicas;
+                }
+                if (!listaAbasGlobal.includes(abaSelecionada)) {
+                    abaSelecionada = listaAbasGlobal[0] || 'Setembro';
+                }
                 atualizarSelectAbas();
                 filtrarErenderizar();
             }
@@ -250,14 +253,8 @@
         }
     }
 
-    async function carregarDados() {
-        mostrarSync(true);
-        await carregarDadosSilencioso();
-        mostrarSync(false);
-    }
-
     function filtrarErenderizar() {
-        const dadosLocais = cacheGlobalDados.filter(item => String(item.aba) === String(abaSelecionada));
+        const dadosLocais = cacheGlobalDados.filter(item => String(item.aba).trim() === String(abaSelecionada).trim());
         renderizarTela(dadosLocais);
     }
 
@@ -295,10 +292,13 @@
     }
 
     async function criarNovaAba() {
-        const nomeAba = prompt('Digite o nome do novo mês (ex: Novembro):');
+        const nomeAba = prompt('Digite o nome do novo mês (ex: Outubro):');
         if (!nomeAba || !nomeAba.trim()) return;
         const nomeLimpo = nomeAba.trim();
-        if (listaAbasGlobal.includes(nomeLimpo)) { alert('Mês já existe!'); return; }
+        if (listaAbasGlobal.map(a => a.toLowerCase()).includes(nomeLimpo.toLowerCase())) { 
+            alert('Este mês já existe!'); 
+            return; 
+        }
 
         listaAbasGlobal.push(nomeLimpo);
         abaSelecionada = nomeLimpo;
@@ -306,25 +306,49 @@
         filtrarErenderizar();
 
         mostrarSync(true);
-        await fetch(`${API_URL}?action=insert&aba=${encodeURIComponent(nomeLimpo)}&tipo=entrada&descricao=${encodeURIComponent('Início do Mês')}&valor=0.00&data_pgto=01`);
-        await carregarDadosSilencioso();
-        mostrarSync(false);
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'insertBatch', aba: nomeLimpo })
+            });
+            await carregarDadosSilencioso();
+        } catch(e) {
+            console.error("Erro ao criar novo mês:", e);
+        } finally {
+            mostrarSync(false);
+        }
     }
 
     async function excluirAbaAtual() {
-        if (!confirm(`Deseja apagar o mês "${abaSelecionada}"?`)) return;
+        const abaParaExcluir = abaSelecionada;
+        if (!confirm(`Deseja realmente apagar todo o mês de "${abaParaExcluir}"?`)) return;
 
-        cacheGlobalDados = cacheGlobalDados.filter(i => String(i.aba) !== String(abaSelecionada));
-        listaAbasGlobal = listaAbasGlobal.filter(a => a !== abaSelecionada);
-        if (listaAbasGlobal.length === 0) listaAbasGlobal = ['Outubro'];
+        // Atualização Otimista no Front-end
+        cacheGlobalDados = cacheGlobalDados.filter(i => String(i.aba).trim().toLowerCase() !== abaParaExcluir.toLowerCase());
+        listaAbasGlobal = listaAbasGlobal.filter(a => a.toLowerCase() !== abaParaExcluir.toLowerCase());
+        
+        if (listaAbasGlobal.length === 0) {
+            listaAbasGlobal = ['Setembro'];
+        }
         abaSelecionada = listaAbasGlobal[0];
+        
         atualizarSelectAbas();
         filtrarErenderizar();
 
         mostrarSync(true);
-        await fetch(`${API_URL}?action=delete&aba=${encodeURIComponent(abaSelecionada)}`);
-        await carregarDadosSilencioso();
-        mostrarSync(false);
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'delete', aba: abaParaExcluir })
+            });
+            await carregarDadosSilencioso();
+        } catch(e) {
+            console.error("Erro ao excluir aba:", e);
+        } finally {
+            mostrarSync(false);
+        }
     }
 
     async function salvarTransacao(e) {
@@ -349,15 +373,28 @@
         filtrarErenderizar();
 
         mostrarSync(true);
-        let url = `${API_URL}?`;
-        if (idEdit) {
-            url += `action=update&id=${idEdit}&aba=${encodeURIComponent(abaSelecionada)}&descricao=${encodeURIComponent(descricao)}&valor=${valor}&data_pgto=${encodeURIComponent(dataPgto)}&tipo=${tipo}`;
-        } else {
-            url += `action=insert&aba=${encodeURIComponent(abaSelecionada)}&descricao=${encodeURIComponent(descricao)}&valor=${valor}&data_pgto=${encodeURIComponent(dataPgto)}&tipo=${tipo}`;
+        const payload = {
+            action: idEdit ? 'update' : 'insert',
+            id: idEdit || undefined,
+            aba: abaSelecionada,
+            descricao,
+            valor,
+            data_pgto: dataPgto,
+            tipo
+        };
+
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(payload)
+            });
+            await carregarDadosSilencioso();
+        } catch(e) {
+            console.error("Erro ao salvar transação:", e);
+        } finally {
+            mostrarSync(false);
         }
-        await fetch(url);
-        await carregarDadosSilencioso();
-        mostrarSync(false);
     }
 
     function prepararEdicao(id) {
@@ -379,9 +416,18 @@
         filtrarErenderizar();
 
         mostrarSync(true);
-        await fetch(`${API_URL}?action=delete&id=${id}`);
-        await carregarDadosSilencioso();
-        mostrarSync(false);
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'delete', id: String(id) })
+            });
+            await carregarDadosSilencioso();
+        } catch(e) {
+            console.error("Erro ao excluir item:", e);
+        } finally {
+            mostrarSync(false);
+        }
     }
 
     function renderizarTela(dadosLocais) {
