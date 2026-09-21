@@ -212,18 +212,20 @@
 <button class="fab-button" onclick="abrirModalFormulario()">+</button>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwCN8ENIYGW8zFlv-q8UVA7YKVXKy8se3qD6_4kcfg9tlRUaYcDQgAFf9HYWgo329YA/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxA6_PffgSxXyfvAzuqD0KmnDpi2SoyBUbe8pEKRGazA2PSla1Sq83o7SZOayIeM8n3/exec';
     
     let cacheGlobalDados = [];
     let abaSelecionada = 'Setembro';
     let listaAbasGlobal = ['Setembro'];
+    let syncsPendentes = 0;
 
     function formatarMoeda(valor) {
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
-    function mostrarSync(ativo) {
-        document.getElementById('syncIndicator').style.display = ativo ? 'block' : 'none';
+    function gerenciarSyncState(delta) {
+        syncsPendentes += delta;
+        document.getElementById('syncIndicator').style.display = syncsPendentes > 0 ? 'block' : 'none';
     }
 
     async function inicializarApp() {
@@ -249,7 +251,7 @@
                 filtrarErenderizar();
             }
         } catch (e) {
-            console.error("Erro de sincronização", e);
+            console.error("Erro ao sincronizar inicialização", e);
         }
     }
 
@@ -305,7 +307,7 @@
         atualizarSelectAbas();
         filtrarErenderizar();
 
-        mostrarSync(true);
+        gerenciarSyncState(1);
         try {
             await fetch(API_URL, {
                 method: 'POST',
@@ -316,7 +318,7 @@
         } catch(e) {
             console.error("Erro ao criar novo mês:", e);
         } finally {
-            mostrarSync(false);
+            gerenciarSyncState(-1);
         }
     }
 
@@ -335,22 +337,21 @@
         atualizarSelectAbas();
         filtrarErenderizar();
 
-        mostrarSync(true);
+        gerenciarSyncState(1);
         try {
             await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({ action: 'delete', aba: abaParaExcluir })
             });
-            await carregarDadosSilencioso();
         } catch(e) {
             console.error("Erro ao excluir aba:", e);
         } finally {
-            mostrarSync(false);
+            gerenciarSyncState(-1);
         }
     }
 
-    async function salvarTransacao(e) {
+    function salvarTransacao(e) {
         e.preventDefault();
         const idEdit = document.getElementById('editId').value;
         const descricao = document.getElementById('descricao').value;
@@ -360,18 +361,22 @@
 
         fecharModalFormulario();
 
+        const tempId = idEdit || ('temp_' + Date.now());
+
         if (idEdit) {
             const index = cacheGlobalDados.findIndex(i => String(i.id) === String(idEdit));
             if (index !== -1) {
                 cacheGlobalDados[index] = { id: idEdit, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo };
             }
         } else {
-            const tempId = 'temp_' + Date.now();
             cacheGlobalDados.push({ id: tempId, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo });
         }
+        
+        // Atualização instantânea na tela
         filtrarErenderizar();
 
-        mostrarSync(true);
+        // Envio assíncrono em segundo plano (Sincronização Invisível)
+        gerenciarSyncState(1);
         const payload = {
             action: idEdit ? 'update' : 'insert',
             id: idEdit || undefined,
@@ -382,18 +387,21 @@
             tipo
         };
 
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify(payload)
-            });
-            await carregarDadosSilencioso();
-        } catch(e) {
-            console.error("Erro ao salvar transação:", e);
-        } finally {
-            mostrarSync(false);
-        }
+        fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(res => {
+            // Se foi uma inserção nova, substitui o tempId pelo ID real do banco
+            if (!idEdit && res && res.id) {
+                const item = cacheGlobalDados.find(i => String(i.id) === tempId);
+                if (item) item.id = String(res.id);
+            }
+        })
+        .catch(err => console.error("Falha ao salvar em segundo plano:", err))
+        .finally(() => gerenciarSyncState(-1));
     }
 
     function prepararEdicao(id) {
@@ -408,25 +416,22 @@
         abrirModalFormulario();
     }
 
-    async function excluirTransacao(id) {
+    function excluirTransacao(id) {
         if (!confirm('Apagar este item?')) return;
 
+        // Remoção instantânea da tela
         cacheGlobalDados = cacheGlobalDados.filter(i => String(i.id) !== String(id));
         filtrarErenderizar();
 
-        mostrarSync(true);
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'delete', id: String(id) })
-            });
-            await carregarDadosSilencioso();
-        } catch(e) {
-            console.error("Erro ao excluir item:", e);
-        } finally {
-            mostrarSync(false);
-        }
+        // Envio assíncrono em segundo plano
+        gerenciarSyncState(1);
+        fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'delete', id: String(id) })
+        })
+        .catch(err => console.error("Falha ao excluir em segundo plano:", err))
+        .finally(() => gerenciarSyncState(-1));
     }
 
     function renderizarTela(dadosLocais) {
@@ -436,7 +441,6 @@
         ul05.innerHTML = '';
         ul20.innerHTML = '';
 
-        // ORDENAÇÃO: Garante que "entrada" sempre venha antes de "despesa"
         const dadosOrdenados = [...dadosLocais].sort((a, b) => {
             if (a.tipo === 'entrada' && b.tipo !== 'entrada') return -1;
             if (a.tipo !== 'entrada' && b.tipo === 'entrada') return 1;
