@@ -128,7 +128,7 @@
         #syncIndicator { display: none; font-size: 11px; color: #a5b4fc; position: fixed; top: 10px; right: 10px; background: #09090e; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
         .fab-button { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 25px; font-size: 22px; box-shadow: 0 8px 20px rgba(0,0,0,0.8); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 900; }
         
-        /* CHECKBOX MODERNO COM GLASSMORPHISM */
+        /* CHECKBOX MODERNO COM GLASSMORPHISM E REMOÇÃO DO NATIVO DO NAVEGADOR */
         .custom-checkbox-container {
             display: inline-flex;
             align-items: center;
@@ -141,11 +141,15 @@
         }
 
         .custom-checkbox-container input {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
             position: absolute;
             opacity: 0;
             cursor: pointer;
             height: 0;
             width: 0;
+            margin: 0;
         }
 
         .checkmark {
@@ -298,6 +302,29 @@
     let syncsPendentes = 0;
     let abaterApenasPagos = localStorage.getItem('abaterApenasPagos') === 'true';
 
+    // Modelos Padrão para Novos Meses
+    const lancamentosPadrao = [
+        // Dia 05 - Entradas
+        { descricao: 'Salario Bruno', valor: 980.00, data_pgto: '5', tipo: 'entrada', pago: false },
+        { descricao: 'Salario Isabella', valor: 2000.00, data_pgto: '5', tipo: 'entrada', pago: false },
+        // Dia 05 - Despesas
+        { descricao: 'Aluguel', valor: 1160.00, data_pgto: '5', tipo: 'despesa', pago: false },
+        { descricao: 'Energia', valor: 140.00, data_pgto: '5', tipo: 'despesa', pago: false },
+        { descricao: 'Faculdade - Bruno', valor: 181.27, data_pgto: '5', tipo: 'despesa', pago: false },
+        { descricao: 'Faculdade - Isa', valor: 169.99, data_pgto: '5', tipo: 'despesa', pago: false },
+        { descricao: 'Fatura Vivo - Bruno', valor: 44.00, data_pgto: '5', tipo: 'despesa', pago: false },
+        { descricao: 'Fatura Vivo - Isa', valor: 49.00, data_pgto: '5', tipo: 'despesa', pago: false },
+        { descricao: 'Internet', valor: 79.90, data_pgto: '5', tipo: 'despesa', pago: false },
+        { descricao: 'Plano TV', valor: 24.90, data_pgto: '5', tipo: 'despesa', pago: false },
+        { descricao: 'Supermercado', valor: 750.00, data_pgto: '5', tipo: 'despesa', pago: false },
+        
+        // Dia 20 - Entradas
+        { descricao: 'Salario Bruno', valor: 870.00, data_pgto: '20', tipo: 'entrada', pago: false },
+        // Dia 20 - Despesas
+        { descricao: 'Fernanda', valor: 280.00, data_pgto: '20', tipo: 'despesa', pago: false },
+        { descricao: 'Supermercado', valor: 750.00, data_pgto: '20', tipo: 'despesa', pago: false }
+    ];
+
     function formatarMoeda(valor) {
         return (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
@@ -417,7 +444,7 @@
         if (e.target.id === 'modalForm') fecharModalFormulario();
     }
 
-    function criarNovaAba() {
+    async function criarNovaAba() {
         const nomeAba = prompt('Digite o nome do novo mês (ex: Dezembro):');
         if (!nomeAba || !nomeAba.trim()) return;
         const nomeLimpo = nomeAba.trim();
@@ -429,6 +456,23 @@
         listaAbasGlobal.push(nomeLimpo);
         abaSelecionada = nomeLimpo;
         atualizarSelectAbas();
+
+        // Insere lançamentos padrão para o novo mês no Supabase
+        const novosLancamentos = lancamentosPadrao.map(item => ({
+            ...item,
+            aba: nomeLimpo
+        }));
+
+        gerenciarSyncState(1);
+        const { data, error } = await supabaseClient.from('lancamentos').insert(novosLancamentos).select();
+        
+        if (!error && data) {
+            cacheGlobalDados.push(...data);
+        } else {
+            await carregarDadosSilencioso();
+        }
+        
+        gerenciarSyncState(-1);
         filtrarErenderizar();
     }
 
@@ -524,8 +568,18 @@
         ul05.innerHTML = '';
         ul20.innerHTML = '';
 
-        // Mantém a ordem original sem empurrar pagos para baixo
-        dadosLocais.forEach(item => {
+        // ORDENAÇÃO: 1º Entradas primeiro | 2º Maior valor para o menor valor
+        const dadosOrdenados = [...dadosLocais].sort((a, b) => {
+            const ehEntradaA = a.tipo === 'entrada' ? 1 : 0;
+            const ehEntradaB = b.tipo === 'entrada' ? 1 : 0;
+
+            if (ehEntradaA !== ehEntradaB) {
+                return ehEntradaB - ehEntradaA; // Entradas sempre no topo
+            }
+            return (parseFloat(b.valor) || 0) - (parseFloat(a.valor) || 0); // Ordem decrescente de valor
+        });
+
+        dadosOrdenados.forEach(item => {
             const val = parseFloat(item.valor) || 0;
             const dataTexto = String(item.data_pgto || '');
             const ehDia20 = dataTexto.includes('20');
