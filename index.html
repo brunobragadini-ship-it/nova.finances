@@ -10,11 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="nova.finanças_logo.png">
-
-    <!-- Biblioteca Oficial do Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SDK do Supabase JS (v2) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <style>
         :root { 
@@ -121,9 +118,6 @@
         .btn-acao { background: transparent; border: none; cursor: pointer; font-size: 14px; margin-left: 6px; opacity: 0.5; transition: opacity 0.2s; color: #fff; padding: 0; }
         .btn-acao:hover { opacity: 1; }
 
-        .footer-app { display: flex; justify-content: center; align-items: center; margin-top: 35px; margin-bottom: 15px; }
-        .footer-logo { width: 170px; height: auto; max-width: 70vw; object-fit: contain; opacity: 0.6; }
-
         .modal-overlay { display: flex; opacity: 0; pointer-events: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 999; justify-content: center; align-items: center; transition: opacity 0.25s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-card { background: #0b0b12; padding: 20px; border-radius: 16px; width: 88%; max-width: 380px; border: 1px solid var(--card-border); transform: translateY(20px) scale(0.95); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
@@ -182,15 +176,11 @@
 
     <div class="card">
         <h2>Lançamentos</h2>
-        <div id="status" style="text-align:center; color:#94a3b8; display:none;">Carregando...</div>
+        <div id="status" style="text-align:center; color:#94a3b8; padding: 20px;">A carregar dados...</div>
         <div class="subtitulo">📅 Período do Dia 05</div>
         <ul id="lista05"></ul>
         <div class="subtitulo">📅 Período do Dia 20</div>
         <ul id="lista20"></ul>
-    </div>
-
-    <div class="footer-app">
-        <img src="nova.finanças_logo.png" alt="Logo" class="footer-logo">
     </div>
 </div>
 
@@ -206,13 +196,13 @@
             <label style="font-size: 11px; color: #94a3b8;">Valor (R$)</label>
             <input type="number" step="0.01" id="valor" placeholder="Ex: 150.00" required>
             <label style="font-size: 11px; color: #94a3b8;">Data</label>
-            <input type="text" id="dataPgto" placeholder="Ex: 05 ou 20" required>
+            <input type="text" id="dataPgto" placeholder="Ex: 5 ou 20" required>
             <label style="font-size: 11px; color: #94a3b8;">Tipo</label>
             <select id="tipo">
                 <option value="entrada">Entrada (Renda)</option>
                 <option value="despesa">Despesa (Gasto)</option>
             </select>
-            <button type="submit" id="btnSalvar">Salvar Instantaneamente</button>
+            <button type="submit" id="btnSalvar">Salvar</button>
         </form>
     </div>
 </div>
@@ -240,17 +230,16 @@
 <script>
     const SUPABASE_URL = 'https://uvpwporikumehelsuebg.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cHdwb3Jpa3VtZWhlbHN1ZWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNzgzODgsImV4cCI6MjEwNTc1NDM4OH0.P4vcRUqgQLnq_6fmWYLaizyJ9znY5jUa4flYAVvt_UY';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
+    let supabaseClient = null;
     let cacheGlobalDados = [];
     let abaSelecionada = 'Outubro';
     let listaAbasGlobal = ['Outubro', 'Novembro'];
     let syncsPendentes = 0;
-
     let abaterApenasPagos = localStorage.getItem('abaterApenasPagos') === 'true';
 
     function formatarMoeda(valor) {
-        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        return (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
     function gerenciarSyncState(delta) {
@@ -259,6 +248,14 @@
     }
 
     async function inicializarApp() {
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } else {
+            console.error("Biblioteca Supabase não carregada.");
+            document.getElementById('status').innerText = "Erro ao carregar Supabase JS";
+            return;
+        }
+
         document.getElementById('status').style.display = 'block';
         await carregarDadosSilencioso();
         document.getElementById('status').style.display = 'none';
@@ -266,18 +263,22 @@
 
     async function carregarDadosSilencioso() {
         try {
-            const { data, error } = await supabase.from('lancamentos').select('*');
-            if (error) console.error("Erro Supabase:", error);
+            const { data, error } = await supabaseClient.from('lancamentos').select('*');
+            if (error) {
+                console.error("Erro ao buscar dados:", error);
+                document.getElementById('status').innerText = "Erro ao carregar dados do banco.";
+                return;
+            }
 
             if (data && Array.isArray(data)) {
                 cacheGlobalDados = data;
                 const abasUnicas = [...new Set(data.map(item => String(item.aba).trim()))].filter(a => a.length > 0);
                 if (abasUnicas.length > 0) {
-                    listaAbasGlobal = [...new Set([...listaAbasGlobal, ...abasUnicas])];
+                    listaAbasGlobal = [...new Set(['Outubro', 'Novembro', ...abasUnicas])];
                 }
             }
         } catch (e) {
-            console.error("Erro ao conectar com Supabase:", e);
+            console.error("Erro de conexão:", e);
         } finally {
             if (!listaAbasGlobal.includes(abaSelecionada)) {
                 abaSelecionada = listaAbasGlobal[0] || 'Outubro';
@@ -288,7 +289,7 @@
     }
 
     function filtrarErenderizar() {
-        const dadosLocais = cacheGlobalDados.filter(item => String(item.aba).trim() === String(abaSelecionada).trim());
+        const dadosLocais = cacheGlobalDados.filter(item => String(item.aba).trim().toLowerCase() === String(abaSelecionada).trim().toLowerCase());
         renderizarTela(dadosLocais);
     }
 
@@ -335,7 +336,7 @@
             filtrarErenderizar();
 
             gerenciarSyncState(1);
-            await supabase.from('lancamentos').update({ pago: isChecked }).eq('id', id);
+            await supabaseClient.from('lancamentos').update({ pago: isChecked }).eq('id', id);
             gerenciarSyncState(-1);
         }
     }
@@ -387,7 +388,7 @@
         filtrarErenderizar();
 
         gerenciarSyncState(1);
-        await supabase.from('lancamentos').delete().eq('aba', abaParaExcluir);
+        await supabaseClient.from('lancamentos').delete().eq('aba', abaParaExcluir);
         gerenciarSyncState(-1);
     }
 
@@ -409,11 +410,11 @@
             }
             filtrarErenderizar();
 
-            await supabase.from('lancamentos').update({
+            await supabaseClient.from('lancamentos').update({
                 descricao, valor, data_pgto: dataPgto, tipo
             }).eq('id', idEdit);
         } else {
-            const { data, error } = await supabase.from('lancamentos').insert([{
+            const { data, error } = await supabaseClient.from('lancamentos').insert([{
                 aba: abaSelecionada,
                 descricao,
                 valor,
@@ -424,8 +425,10 @@
 
             if (!error && data && data.length > 0) {
                 cacheGlobalDados.push(data[0]);
-                filtrarErenderizar();
+            } else {
+                await carregarDadosSilencioso();
             }
+            filtrarErenderizar();
         }
 
         gerenciarSyncState(-1);
@@ -450,7 +453,7 @@
         filtrarErenderizar();
 
         gerenciarSyncState(1);
-        await supabase.from('lancamentos').delete().eq('id', id);
+        await supabaseClient.from('lancamentos').delete().eq('id', id);
         gerenciarSyncState(-1);
     }
 
@@ -540,7 +543,7 @@
         elResTot.className = `valor-destaque ${totalSobra < 0 ? 'negativo' : ''}`;
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', () => {
         inicializarApp();
     });
 </script>
