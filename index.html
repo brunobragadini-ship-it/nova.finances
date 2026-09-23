@@ -206,7 +206,7 @@
             <label style="font-size: 11px; color: #94a3b8;">Valor (R$)</label>
             <input type="number" step="0.01" id="valor" placeholder="Ex: 150.00" required>
             <label style="font-size: 11px; color: #94a3b8;">Data</label>
-            <input type="text" id="dataPgto" placeholder="Ex: 05 ou 20/10" required>
+            <input type="text" id="dataPgto" placeholder="Ex: 05 ou 20" required>
             <label style="font-size: 11px; color: #94a3b8;">Tipo</label>
             <select id="tipo">
                 <option value="entrada">Entrada (Renda)</option>
@@ -228,7 +228,7 @@
                 <input type="checkbox" id="checkDescontoReal" onchange="alternarModoCalculo(this.checked)" class="checkbox-custom" style="margin-top: 2px;">
                 <span>
                     <strong style="color: #fff; display: block; margin-bottom: 4px;">Abater apenas despesas pagas</strong>
-                    Se ativado, apenas as despesas marcadas no CheckBox serão descontadas da entrada. Se desativado, o CheckBox será apenas um controle visual.
+                    Se ativado, apenas as despesas marcadas no CheckBox serão descontadas da entrada.
                 </span>
             </label>
         </div>
@@ -238,11 +238,9 @@
 <button class="fab-button" onclick="abrirModalFormulario()">+</button>
 
 <script>
-    // --- CONFIGURAÇÃO DO SUPABASE ---
     const SUPABASE_URL = 'https://uvpwporikumehelsuebg.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cHdwb3Jpa3VtZWhlbHN1ZWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNzgzODgsImV4cCI6MjEwNTc1NDM4OH0.P4vcRUqgQLnq_6fmWYLaizyJ9znY5jUa4flYAVvt_UY';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    // ---------------------------------
     
     let cacheGlobalDados = [];
     let abaSelecionada = 'Outubro';
@@ -269,22 +267,23 @@
     async function carregarDadosSilencioso() {
         try {
             const { data, error } = await supabase.from('lancamentos').select('*');
-            if (error) throw error;
+            if (error) console.error("Erro Supabase:", error);
 
-            if (Array.isArray(data)) {
+            if (data && Array.isArray(data)) {
                 cacheGlobalDados = data;
                 const abasUnicas = [...new Set(data.map(item => String(item.aba).trim()))].filter(a => a.length > 0);
                 if (abasUnicas.length > 0) {
-                    listaAbasGlobal = abasUnicas;
+                    listaAbasGlobal = [...new Set([...listaAbasGlobal, ...abasUnicas])];
                 }
-                if (!listaAbasGlobal.includes(abaSelecionada)) {
-                    abaSelecionada = listaAbasGlobal[0] || 'Outubro';
-                }
-                atualizarSelectAbas();
-                filtrarErenderizar();
             }
         } catch (e) {
-            console.error("Erro ao sincronizar com Supabase:", e);
+            console.error("Erro ao conectar com Supabase:", e);
+        } finally {
+            if (!listaAbasGlobal.includes(abaSelecionada)) {
+                abaSelecionada = listaAbasGlobal[0] || 'Outubro';
+            }
+            atualizarSelectAbas();
+            filtrarErenderizar();
         }
     }
 
@@ -401,7 +400,6 @@
         const tipo = document.getElementById('tipo').value;
 
         fecharModalFormulario();
-
         gerenciarSyncState(1);
 
         if (idEdit) {
@@ -542,7 +540,9 @@
         elResTot.className = `valor-destaque ${totalSobra < 0 ? 'negativo' : ''}`;
     }
 
-    inicializarApp();
+    document.addEventListener('DOMContentLoaded', () => {
+        inicializarApp();
+    });
 </script>
 
 </body>
