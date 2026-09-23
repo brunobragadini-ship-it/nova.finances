@@ -13,6 +13,9 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="nova.finanças_logo.png">
 
+    <!-- Biblioteca Oficial do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root { 
             --primary: #5856d6; 
@@ -107,7 +110,7 @@
         li:hover { background: rgba(255, 255, 255, 0.02); }
         li.is-entrada { border-left: 3px solid var(--success); border-radius: 4px 0 0 4px; }
         li.is-despesa { border-left: 3px solid var(--danger); border-radius: 4px 0 0 4px; }
-        li.is-pago { opacity: 0.6; } /* Efeito visual opcional para itens pagos */
+        li.is-pago { opacity: 0.6; }
 
         .valor-item { 
             font-weight: 700; 
@@ -152,7 +155,6 @@
             <button class="btn-header btn-novo-item" onclick="abrirModalFormulario()">+ Lançamento</button>
             <button class="btn-header" onclick="criarNovaAba()">+ Novo Mês</button>
             <button class="btn-header btn-excluir-aba" onclick="excluirAbaAtual()">🗑️ Excluir Mês</button>
-            <!-- Novo botão de configurações -->
             <button class="btn-header btn-config" onclick="abrirModalConfig()" title="Configurações">⚙️</button>
         </div>
     </div>
@@ -192,7 +194,6 @@
     </div>
 </div>
 
-<!-- Modal Formulário Lançamento -->
 <div id="modalForm" class="modal-overlay" onclick="fecharModalAoClicarFora(event)">
     <div class="modal-card">
         <button class="btn-fechar-modal" onclick="fecharModalFormulario()">✕</button>
@@ -216,7 +217,6 @@
     </div>
 </div>
 
-<!-- Novo Modal de Configurações -->
 <div id="modalConfig" class="modal-overlay" onclick="fecharModalConfigFora(event)">
     <div class="modal-card">
         <button class="btn-fechar-modal" onclick="fecharModalConfig()">✕</button>
@@ -238,14 +238,17 @@
 <button class="fab-button" onclick="abrirModalFormulario()">+</button>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxA6_PffgSxXyfvAzuqD0KmnDpi2SoyBUbe8pEKRGazA2PSla1Sq83o7SZOayIeM8n3/exec';
+    // --- CONFIGURAÇÃO DO SUPABASE ---
+    const SUPABASE_URL = 'https://uvpwporikumehelsuebg.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_FoWe98k5r8Vot60U3HksAw_rh8HDi65';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // ---------------------------------
     
     let cacheGlobalDados = [];
-    let abaSelecionada = 'Setembro';
-    let listaAbasGlobal = ['Setembro'];
+    let abaSelecionada = 'Outubro';
+    let listaAbasGlobal = ['Outubro', 'Novembro'];
     let syncsPendentes = 0;
 
-    // Recupera a configuração do CheckBox (Visual vs Calculado) do LocalStorage
     let abaterApenasPagos = localStorage.getItem('abaterApenasPagos') === 'true';
 
     function formatarMoeda(valor) {
@@ -265,8 +268,9 @@
 
     async function carregarDadosSilencioso() {
         try {
-            const response = await fetch(API_URL);
-            const data = await response.json();
+            const { data, error } = await supabase.from('lancamentos').select('*');
+            if (error) throw error;
+
             if (Array.isArray(data)) {
                 cacheGlobalDados = data;
                 const abasUnicas = [...new Set(data.map(item => String(item.aba).trim()))].filter(a => a.length > 0);
@@ -274,13 +278,13 @@
                     listaAbasGlobal = abasUnicas;
                 }
                 if (!listaAbasGlobal.includes(abaSelecionada)) {
-                    abaSelecionada = listaAbasGlobal[0] || 'Setembro';
+                    abaSelecionada = listaAbasGlobal[0] || 'Outubro';
                 }
                 atualizarSelectAbas();
                 filtrarErenderizar();
             }
         } catch (e) {
-            console.error("Erro ao sincronizar inicialização", e);
+            console.error("Erro ao sincronizar com Supabase:", e);
         }
     }
 
@@ -306,7 +310,6 @@
         filtrarErenderizar();
     }
 
-    // --- FUNÇÕES DO MODAL DE CONFIGURAÇÃO ---
     function abrirModalConfig() {
         document.getElementById('checkDescontoReal').checked = abaterApenasPagos;
         document.getElementById('modalConfig').classList.add('active');
@@ -323,29 +326,20 @@
     function alternarModoCalculo(isCalculated) {
         abaterApenasPagos = isCalculated;
         localStorage.setItem('abaterApenasPagos', isCalculated);
-        filtrarErenderizar(); // Atualiza os painéis na mesma hora
+        filtrarErenderizar();
     }
 
-    // --- FUNÇÃO PARA MARCAR COMO PAGO ---
-    function alternarStatusPagamento(id, isChecked) {
+    async function alternarStatusPagamento(id, isChecked) {
         const index = cacheGlobalDados.findIndex(i => String(i.id) === String(id));
         if (index !== -1) {
             cacheGlobalDados[index].pago = isChecked;
-            filtrarErenderizar(); // Re-renderiza para atualizar painéis (se modo ativo) e estilo
+            filtrarErenderizar();
 
-            // Envia a atualização em segundo plano para manter salvo
             gerenciarSyncState(1);
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({
-                    action: 'update',
-                    ...cacheGlobalDados[index] // Manda o objeto inteiro atualizado
-                })
-            }).finally(() => gerenciarSyncState(-1));
+            await supabase.from('lancamentos').update({ pago: isChecked }).eq('id', id);
+            gerenciarSyncState(-1);
         }
     }
-    // ------------------------------------
 
     function abrirModalFormulario() {
         document.getElementById('modalForm').classList.add('active');
@@ -363,8 +357,8 @@
         if (e.target.id === 'modalForm') fecharModalFormulario();
     }
 
-    async function criarNovaAba() {
-        const nomeAba = prompt('Digite o nome do novo mês (ex: Outubro):');
+    function criarNovaAba() {
+        const nomeAba = prompt('Digite o nome do novo mês (ex: Dezembro):');
         if (!nomeAba || !nomeAba.trim()) return;
         const nomeLimpo = nomeAba.trim();
         if (listaAbasGlobal.map(a => a.toLowerCase()).includes(nomeLimpo.toLowerCase())) { 
@@ -376,20 +370,6 @@
         abaSelecionada = nomeLimpo;
         atualizarSelectAbas();
         filtrarErenderizar();
-
-        gerenciarSyncState(1);
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'insertBatch', aba: nomeLimpo })
-            });
-            await carregarDadosSilencioso();
-        } catch(e) {
-            console.error("Erro ao criar novo mês:", e);
-        } finally {
-            gerenciarSyncState(-1);
-        }
     }
 
     async function excluirAbaAtual() {
@@ -400,7 +380,7 @@
         listaAbasGlobal = listaAbasGlobal.filter(a => a.toLowerCase() !== abaParaExcluir.toLowerCase());
         
         if (listaAbasGlobal.length === 0) {
-            listaAbasGlobal = ['Setembro'];
+            listaAbasGlobal = ['Outubro'];
         }
         abaSelecionada = listaAbasGlobal[0];
         
@@ -408,20 +388,11 @@
         filtrarErenderizar();
 
         gerenciarSyncState(1);
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'delete', aba: abaParaExcluir })
-            });
-        } catch(e) {
-            console.error("Erro ao excluir aba:", e);
-        } finally {
-            gerenciarSyncState(-1);
-        }
+        await supabase.from('lancamentos').delete().eq('aba', abaParaExcluir);
+        gerenciarSyncState(-1);
     }
 
-    function salvarTransacao(e) {
+    async function salvarTransacao(e) {
         e.preventDefault();
         const idEdit = document.getElementById('editId').value;
         const descricao = document.getElementById('descricao').value;
@@ -431,48 +402,35 @@
 
         fecharModalFormulario();
 
-        const tempId = idEdit || ('temp_' + Date.now());
-        
-        // Pega o status de pagamento antigo caso seja uma edição
-        let statusPago = false;
+        gerenciarSyncState(1);
+
         if (idEdit) {
             const index = cacheGlobalDados.findIndex(i => String(i.id) === String(idEdit));
             if (index !== -1) {
-                statusPago = cacheGlobalDados[index].pago === true || String(cacheGlobalDados[index].pago) === 'true';
-                cacheGlobalDados[index] = { id: idEdit, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo, pago: statusPago };
+                cacheGlobalDados[index] = { ...cacheGlobalDados[index], descricao, valor, data_pgto: dataPgto, tipo };
             }
+            filtrarErenderizar();
+
+            await supabase.from('lancamentos').update({
+                descricao, valor, data_pgto: dataPgto, tipo
+            }).eq('id', idEdit);
         } else {
-            cacheGlobalDados.push({ id: tempId, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo, pago: false });
-        }
-        
-        filtrarErenderizar();
+            const { data, error } = await supabase.from('lancamentos').insert([{
+                aba: abaSelecionada,
+                descricao,
+                valor,
+                data_pgto: dataPgto,
+                tipo,
+                pago: false
+            }]).select();
 
-        gerenciarSyncState(1);
-        const payload = {
-            action: idEdit ? 'update' : 'insert',
-            id: idEdit || undefined,
-            aba: abaSelecionada,
-            descricao,
-            valor,
-            data_pgto: dataPgto,
-            tipo,
-            pago: statusPago // Envia a chave "pago"
-        };
-
-        fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(res => {
-            if (!idEdit && res && res.id) {
-                const item = cacheGlobalDados.find(i => String(i.id) === tempId);
-                if (item) item.id = String(res.id);
+            if (!error && data && data.length > 0) {
+                cacheGlobalDados.push(data[0]);
+                filtrarErenderizar();
             }
-        })
-        .catch(err => console.error("Falha ao salvar em segundo plano:", err))
-        .finally(() => gerenciarSyncState(-1));
+        }
+
+        gerenciarSyncState(-1);
     }
 
     function prepararEdicao(id) {
@@ -487,20 +445,15 @@
         abrirModalFormulario();
     }
 
-    function excluirTransacao(id) {
+    async function excluirTransacao(id) {
         if (!confirm('Apagar este item?')) return;
 
         cacheGlobalDados = cacheGlobalDados.filter(i => String(i.id) !== String(id));
         filtrarErenderizar();
 
         gerenciarSyncState(1);
-        fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action: 'delete', id: String(id) })
-        })
-        .catch(err => console.error("Falha ao excluir em segundo plano:", err))
-        .finally(() => gerenciarSyncState(-1));
+        await supabase.from('lancamentos').delete().eq('id', id);
+        gerenciarSyncState(-1);
     }
 
     function renderizarTela(dadosLocais) {
@@ -521,14 +474,11 @@
             const dataTexto = String(item.data_pgto || '');
             const ehDia20 = dataTexto.includes('20');
             const ehDespesa = item.tipo !== 'entrada';
-            
-            // Variável de controle do checkbox
-            const taPago = item.pago === true || String(item.pago) === 'true';
+            const taPago = item.pago === true;
 
-            // Estrutura do Checkbox (aparece apenas em despesas)
             const checkboxHtml = ehDespesa 
                 ? `<input type="checkbox" class="checkbox-custom" ${taPago ? 'checked' : ''} onchange="alternarStatusPagamento('${item.id}', this.checked)" style="margin-right: 12px;" title="Marcar como pago">`
-                : `<div style="width: 34px;"></div>`; // Espaçamento vazio para manter alinhamento em rendas
+                : `<div style="width: 34px;"></div>`;
 
             const li = document.createElement('li');
             li.className = `${!ehDespesa ? 'is-entrada' : 'is-despesa'} ${taPago ? 'is-pago' : ''}`;
@@ -550,10 +500,7 @@
                 </div>
             `;
 
-            // Lógica Central do Cálculo Dinâmico baseada nas Configurações
             let valorDespesaCalculado = val;
-            
-            // Se o usuário marcou para abater APENAS os pagos, e o item atual NÃO estiver pago, o desconto é zero.
             if (ehDespesa && abaterApenasPagos && !taPago) {
                 valorDespesaCalculado = 0;
             }
