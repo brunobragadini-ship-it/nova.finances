@@ -64,6 +64,7 @@
         .btn-novo-item:hover { background: var(--primary-hover); }
         .btn-excluir-aba { background: transparent; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-excluir-aba:hover { background: rgba(239, 68, 68, 0.1); }
+        .btn-config { background: transparent; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 7px 10px; display: flex; align-items: center; gap: 5px;}
 
         .painel-resumos { 
             display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 18px; 
@@ -106,6 +107,7 @@
         li:hover { background: rgba(255, 255, 255, 0.02); }
         li.is-entrada { border-left: 3px solid var(--success); border-radius: 4px 0 0 4px; }
         li.is-despesa { border-left: 3px solid var(--danger); border-radius: 4px 0 0 4px; }
+        li.is-pago { opacity: 0.6; } /* Efeito visual opcional para itens pagos */
 
         .valor-item { 
             font-weight: 700; 
@@ -123,11 +125,13 @@
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-card { background: #0b0b12; padding: 20px; border-radius: 16px; width: 88%; max-width: 380px; border: 1px solid var(--card-border); transform: translateY(20px) scale(0.95); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
         .modal-overlay.active .modal-card { transform: translateY(0) scale(1); }
-        form input, form select { width: 100%; padding: 10px; margin-bottom: 10px; background: #050508; border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 13px; outline: none; }
+        form input:not([type="checkbox"]), form select { width: 100%; padding: 10px; margin-bottom: 10px; background: #050508; border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 13px; outline: none; }
         form button { width: 100%; padding: 10px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 5px; }
         .btn-fechar-modal { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; font-weight: bold; }
         #syncIndicator { display: none; font-size: 11px; color: #a5b4fc; position: fixed; top: 10px; right: 10px; background: #09090e; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
         .fab-button { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 25px; font-size: 22px; box-shadow: 0 8px 20px rgba(0,0,0,0.8); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 900; }
+        
+        .checkbox-custom { width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -144,10 +148,12 @@
             <label style="font-size:12px; color:#94a3b8; margin-right:6px;">Mês / Aba:</label>
             <select id="selectAba" onchange="trocarAba(this.value)"></select>
         </div>
-        <div style="display:flex; gap:5px;">
+        <div style="display:flex; gap:5px; align-items: center;">
             <button class="btn-header btn-novo-item" onclick="abrirModalFormulario()">+ Lançamento</button>
             <button class="btn-header" onclick="criarNovaAba()">+ Novo Mês</button>
             <button class="btn-header btn-excluir-aba" onclick="excluirAbaAtual()">🗑️ Excluir Mês</button>
+            <!-- Novo botão de configurações -->
+            <button class="btn-header btn-config" onclick="abrirModalConfig()" title="Configurações">⚙️</button>
         </div>
     </div>
 
@@ -186,6 +192,7 @@
     </div>
 </div>
 
+<!-- Modal Formulário Lançamento -->
 <div id="modalForm" class="modal-overlay" onclick="fecharModalAoClicarFora(event)">
     <div class="modal-card">
         <button class="btn-fechar-modal" onclick="fecharModalFormulario()">✕</button>
@@ -209,6 +216,25 @@
     </div>
 </div>
 
+<!-- Novo Modal de Configurações -->
+<div id="modalConfig" class="modal-overlay" onclick="fecharModalConfigFora(event)">
+    <div class="modal-card">
+        <button class="btn-fechar-modal" onclick="fecharModalConfig()">✕</button>
+        <h2 style="margin-top:0; font-size:18px; color:#fff;">⚙️ Opções do App</h2>
+        
+        <div style="margin-top: 20px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+            <h3 style="font-size: 14px; margin-top: 0; color: #e2e8f0;">CheckBox Opções</h3>
+            <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 13px; color: #cbd5e1; line-height: 1.4;">
+                <input type="checkbox" id="checkDescontoReal" onchange="alternarModoCalculo(this.checked)" class="checkbox-custom" style="margin-top: 2px;">
+                <span>
+                    <strong style="color: #fff; display: block; margin-bottom: 4px;">Abater apenas despesas pagas</strong>
+                    Se ativado, apenas as despesas marcadas no CheckBox serão descontadas da entrada. Se desativado, o CheckBox será apenas um controle visual.
+                </span>
+            </label>
+        </div>
+    </div>
+</div>
+
 <button class="fab-button" onclick="abrirModalFormulario()">+</button>
 
 <script>
@@ -218,6 +244,9 @@
     let abaSelecionada = 'Setembro';
     let listaAbasGlobal = ['Setembro'];
     let syncsPendentes = 0;
+
+    // Recupera a configuração do CheckBox (Visual vs Calculado) do LocalStorage
+    let abaterApenasPagos = localStorage.getItem('abaterApenasPagos') === 'true';
 
     function formatarMoeda(valor) {
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -276,6 +305,47 @@
         abaSelecionada = novaAba;
         filtrarErenderizar();
     }
+
+    // --- FUNÇÕES DO MODAL DE CONFIGURAÇÃO ---
+    function abrirModalConfig() {
+        document.getElementById('checkDescontoReal').checked = abaterApenasPagos;
+        document.getElementById('modalConfig').classList.add('active');
+    }
+
+    function fecharModalConfig() {
+        document.getElementById('modalConfig').classList.remove('active');
+    }
+
+    function fecharModalConfigFora(e) {
+        if (e.target.id === 'modalConfig') fecharModalConfig();
+    }
+
+    function alternarModoCalculo(isCalculated) {
+        abaterApenasPagos = isCalculated;
+        localStorage.setItem('abaterApenasPagos', isCalculated);
+        filtrarErenderizar(); // Atualiza os painéis na mesma hora
+    }
+
+    // --- FUNÇÃO PARA MARCAR COMO PAGO ---
+    function alternarStatusPagamento(id, isChecked) {
+        const index = cacheGlobalDados.findIndex(i => String(i.id) === String(id));
+        if (index !== -1) {
+            cacheGlobalDados[index].pago = isChecked;
+            filtrarErenderizar(); // Re-renderiza para atualizar painéis (se modo ativo) e estilo
+
+            // Envia a atualização em segundo plano para manter salvo
+            gerenciarSyncState(1);
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({
+                    action: 'update',
+                    ...cacheGlobalDados[index] // Manda o objeto inteiro atualizado
+                })
+            }).finally(() => gerenciarSyncState(-1));
+        }
+    }
+    // ------------------------------------
 
     function abrirModalFormulario() {
         document.getElementById('modalForm').classList.add('active');
@@ -362,20 +432,21 @@
         fecharModalFormulario();
 
         const tempId = idEdit || ('temp_' + Date.now());
-
+        
+        // Pega o status de pagamento antigo caso seja uma edição
+        let statusPago = false;
         if (idEdit) {
             const index = cacheGlobalDados.findIndex(i => String(i.id) === String(idEdit));
             if (index !== -1) {
-                cacheGlobalDados[index] = { id: idEdit, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo };
+                statusPago = cacheGlobalDados[index].pago === true || String(cacheGlobalDados[index].pago) === 'true';
+                cacheGlobalDados[index] = { id: idEdit, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo, pago: statusPago };
             }
         } else {
-            cacheGlobalDados.push({ id: tempId, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo });
+            cacheGlobalDados.push({ id: tempId, aba: abaSelecionada, descricao, valor, data_pgto: dataPgto, tipo, pago: false });
         }
         
-        // Atualização instantânea na tela
         filtrarErenderizar();
 
-        // Envio assíncrono em segundo plano (Sincronização Invisível)
         gerenciarSyncState(1);
         const payload = {
             action: idEdit ? 'update' : 'insert',
@@ -384,7 +455,8 @@
             descricao,
             valor,
             data_pgto: dataPgto,
-            tipo
+            tipo,
+            pago: statusPago // Envia a chave "pago"
         };
 
         fetch(API_URL, {
@@ -394,7 +466,6 @@
         })
         .then(res => res.json())
         .then(res => {
-            // Se foi uma inserção nova, substitui o tempId pelo ID real do banco
             if (!idEdit && res && res.id) {
                 const item = cacheGlobalDados.find(i => String(i.id) === tempId);
                 if (item) item.id = String(res.id);
@@ -419,11 +490,9 @@
     function excluirTransacao(id) {
         if (!confirm('Apagar este item?')) return;
 
-        // Remoção instantânea da tela
         cacheGlobalDados = cacheGlobalDados.filter(i => String(i.id) !== String(id));
         filtrarErenderizar();
 
-        // Envio assíncrono em segundo plano
         gerenciarSyncState(1);
         fetch(API_URL, {
             method: 'POST',
@@ -451,28 +520,49 @@
             const val = parseFloat(item.valor) || 0;
             const dataTexto = String(item.data_pgto || '');
             const ehDia20 = dataTexto.includes('20');
+            const ehDespesa = item.tipo !== 'entrada';
+            
+            // Variável de controle do checkbox
+            const taPago = item.pago === true || String(item.pago) === 'true';
+
+            // Estrutura do Checkbox (aparece apenas em despesas)
+            const checkboxHtml = ehDespesa 
+                ? `<input type="checkbox" class="checkbox-custom" ${taPago ? 'checked' : ''} onchange="alternarStatusPagamento('${item.id}', this.checked)" style="margin-right: 12px;" title="Marcar como pago">`
+                : `<div style="width: 34px;"></div>`; // Espaçamento vazio para manter alinhamento em rendas
 
             const li = document.createElement('li');
-            li.className = item.tipo === 'entrada' ? 'is-entrada' : 'is-despesa';
+            li.className = `${!ehDespesa ? 'is-entrada' : 'is-despesa'} ${taPago ? 'is-pago' : ''}`;
+            
             li.innerHTML = `
-                <div style="flex:1; min-width: 0; padding-right: 6px;">
-                    <strong style="font-size:14px; font-weight:600; word-break: break-word;">${item.descricao}</strong><br>
-                    <span style="font-size:11.5px; color:var(--text-muted);">Data: ${dataTexto}</span>
+                <div style="display:flex; align-items:center; flex:1; min-width: 0;">
+                    ${checkboxHtml}
+                    <div style="padding-right: 6px;">
+                        <strong style="font-size:14px; font-weight:600; word-break: break-word; text-decoration: ${taPago ? 'line-through' : 'none'}; color: ${taPago ? '#64748b' : '#fff'}">${item.descricao}</strong><br>
+                        <span style="font-size:11.5px; color:var(--text-muted);">Data: ${dataTexto}</span>
+                    </div>
                 </div>
                 <div style="display:flex; align-items:center; flex-shrink: 0;">
-                    <span class="valor-item" style="color:${item.tipo === 'entrada' ? 'var(--success)' : 'var(--danger)'}">
-                        ${item.tipo === 'entrada' ? '+ ' : '- '}${formatarMoeda(val)}
+                    <span class="valor-item" style="color:${!ehDespesa ? 'var(--success)' : (taPago ? '#64748b' : 'var(--danger)')}">
+                        ${!ehDespesa ? '+ ' : '- '}${formatarMoeda(val)}
                     </span>
                     <button class="btn-acao" onclick="prepararEdicao('${item.id}')" title="Editar">✏️</button>
                     <button class="btn-acao" onclick="excluirTransacao('${item.id}')" title="Excluir" style="color:#ef4444;">🗑️</button>
                 </div>
             `;
 
+            // Lógica Central do Cálculo Dinâmico baseada nas Configurações
+            let valorDespesaCalculado = val;
+            
+            // Se o usuário marcou para abater APENAS os pagos, e o item atual NÃO estiver pago, o desconto é zero.
+            if (ehDespesa && abaterApenasPagos && !taPago) {
+                valorDespesaCalculado = 0;
+            }
+
             if (ehDia20) {
-                if (item.tipo === 'entrada') r20 += val; else d20 += val;
+                if (!ehDespesa) r20 += val; else d20 += valorDespesaCalculado;
                 ul20.appendChild(li);
             } else {
-                if (item.tipo === 'entrada') r05 += val; else d05 += val;
+                if (!ehDespesa) r05 += val; else d05 += valorDespesaCalculado;
                 ul05.appendChild(li);
             }
         });
