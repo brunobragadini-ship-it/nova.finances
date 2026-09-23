@@ -128,14 +128,16 @@
         #syncIndicator { display: none; font-size: 11px; color: #a5b4fc; position: fixed; top: 10px; right: 10px; background: #09090e; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
         .fab-button { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 25px; font-size: 22px; box-shadow: 0 8px 20px rgba(0,0,0,0.8); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 900; }
         
-        /* Checkbox Moderno / Customizado */
+        /* CHECKBOX MODERNO COM GLASSMORPHISM */
         .custom-checkbox-container {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             cursor: pointer;
             user-select: none;
             margin-right: 12px;
             flex-shrink: 0;
+            position: relative;
         }
 
         .custom-checkbox-container input {
@@ -149,33 +151,35 @@
         .checkmark {
             height: 20px;
             width: 20px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(255, 255, 255, 0.18);
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .custom-checkbox-container:hover .checkmark {
-            border-color: var(--primary);
-            background-color: rgba(88, 86, 214, 0.15);
+            border-color: rgba(88, 86, 214, 0.6);
+            background-color: rgba(88, 86, 214, 0.12);
+            box-shadow: 0 0 10px rgba(88, 86, 214, 0.25);
         }
 
         .custom-checkbox-container input:checked ~ .checkmark {
             background-color: var(--primary);
             border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(88, 86, 214, 0.5);
+            box-shadow: 0 0 12px rgba(88, 86, 214, 0.5);
         }
 
         .checkmark:after {
             content: "";
             display: none;
-            width: 4px;
+            width: 5px;
             height: 9px;
-            border: solid white;
+            border: solid #ffffff;
             border-width: 0 2px 2px 0;
             transform: rotate(45deg);
             margin-bottom: 2px;
@@ -269,7 +273,7 @@
         
         <div style="margin-top: 20px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
             <h3 style="font-size: 14px; margin-top: 0; color: #e2e8f0;">CheckBox Opções</h3>
-            <label class="custom-checkbox-container" style="align-items: flex-start; cursor: pointer;">
+            <label class="custom-checkbox-container" style="align-items: flex-start; cursor: pointer; justify-content: flex-start;">
                 <input type="checkbox" id="checkDescontoReal" onchange="alternarModoCalculo(this.checked)">
                 <span class="checkmark" style="margin-top: 2px;"></span>
                 <span style="font-size: 13px; color: #cbd5e1; line-height: 1.4; margin-left: 8px;">
@@ -520,13 +524,8 @@
         ul05.innerHTML = '';
         ul20.innerHTML = '';
 
-        const dadosOrdenados = [...dadosLocais].sort((a, b) => {
-            if (a.tipo === 'entrada' && b.tipo !== 'entrada') return -1;
-            if (a.tipo !== 'entrada' && b.tipo === 'entrada') return 1;
-            return 0;
-        });
-
-        dadosOrdenados.forEach(item => {
+        // Mantém a ordem original sem empurrar pagos para baixo
+        dadosLocais.forEach(item => {
             const val = parseFloat(item.valor) || 0;
             const dataTexto = String(item.data_pgto || '');
             const ehDia20 = dataTexto.includes('20');
