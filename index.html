@@ -11,13 +11,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <style>
 :root {
-    --primary: #5856d6;
-    --primary-hover: #4b48c8;
-    --primary-glow: rgba(88, 86, 214, 0.45);
-    --primary-soft: rgba(88, 86, 214, 0.12);
+    --primary: #f97316;
+    --primary-hover: #ea580c;
+    --primary-light: #fb923c;
+    --primary-glow: rgba(249, 115, 22, 0.5);
+    --primary-soft: rgba(249, 115, 22, 0.12);
+    --primary-border: rgba(249, 115, 22, 0.3);
     --success: #22c55e;
     --success-soft: rgba(34, 197, 94, 0.12);
     --danger: #ef4444;
@@ -36,7 +39,6 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-
 html, body { margin: 0; padding: 0; }
 
 body {
@@ -44,7 +46,7 @@ body {
     background: #030305;
     color: var(--text);
     padding: 0;
-    padding-bottom: 110px;
+    padding-bottom: 130px;
     min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
@@ -52,7 +54,6 @@ body {
     position: relative;
 }
 
-/* Ambient glows */
 body::before {
     content: '';
     position: fixed;
@@ -61,7 +62,7 @@ body::before {
     transform: translateX(-50%);
     width: 130%;
     height: 75%;
-    background: radial-gradient(ellipse at center, rgba(88, 86, 214, 0.22) 0%, rgba(88, 86, 214, 0.06) 40%, transparent 72%);
+    background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.20) 0%, rgba(249, 115, 22, 0.05) 40%, transparent 72%);
     pointer-events: none;
     z-index: 0;
 }
@@ -72,7 +73,7 @@ body::after {
     right: -25%;
     width: 90%;
     height: 70%;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.09) 0%, transparent 65%);
+    background: radial-gradient(circle, rgba(251, 146, 60, 0.09) 0%, transparent 65%);
     pointer-events: none;
     z-index: 0;
 }
@@ -104,7 +105,7 @@ body::after {
     letter-spacing: -0.6px;
     margin: 0;
     line-height: 1.1;
-    background: linear-gradient(135deg, #ffffff 0%, #c7c8ff 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #ffd4b3 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -134,13 +135,17 @@ body::after {
     flex-shrink: 0;
 }
 .icon-btn:hover {
-    color: #fff;
-    border-color: var(--border-strong);
-    background: var(--surface-2);
+    color: var(--primary-light);
+    border-color: var(--primary-border);
+    background: var(--primary-soft);
     transform: translateY(-1px);
 }
 .icon-btn:active { transform: scale(0.94); }
 .icon-btn svg { width: 18px; height: 18px; }
+
+/* ============ TELAS ============ */
+.tela { display: none; }
+.tela.active { display: block; animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 /* ============ MONTH BAR ============ */
 .month-bar {
@@ -172,7 +177,7 @@ body::after {
     height: 15px;
     color: var(--primary);
     flex-shrink: 0;
-    opacity: 0.85;
+    opacity: 0.9;
 }
 
 #selectAba {
@@ -189,7 +194,7 @@ body::after {
     padding-right: 22px;
     -webkit-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b95a8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f97316' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
     background-repeat: no-repeat;
     background-position: right 2px center;
     background-size: 14px;
@@ -232,11 +237,11 @@ body::after {
     position: relative;
     border-radius: var(--radius-lg);
     padding: 26px 24px;
-    background: linear-gradient(145deg, rgba(88, 86, 214, 0.18) 0%, rgba(20, 20, 34, 0.9) 60%);
-    border: 1px solid rgba(120, 119, 198, 0.22);
+    background: linear-gradient(145deg, rgba(249, 115, 22, 0.18) 0%, rgba(20, 20, 34, 0.9) 60%);
+    border: 1px solid rgba(249, 115, 22, 0.25);
     margin-bottom: 14px;
     overflow: hidden;
-    box-shadow: 0 20px 50px -20px rgba(88, 86, 214, 0.3), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    box-shadow: 0 20px 50px -20px rgba(249, 115, 22, 0.35), 0 0 0 1px rgba(255,255,255,0.02) inset;
     animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: 0.1s;
 }
@@ -248,7 +253,7 @@ body::after {
     right: -20%;
     width: 60%;
     height: 180%;
-    background: radial-gradient(circle, rgba(88, 86, 214, 0.35) 0%, transparent 65%);
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.35) 0%, transparent 65%);
     pointer-events: none;
     filter: blur(20px);
 }
@@ -270,7 +275,7 @@ body::after {
     font-weight: 600;
     letter-spacing: 1.8px;
     text-transform: uppercase;
-    color: rgba(199, 200, 255, 0.85);
+    color: rgba(255, 214, 179, 0.9);
     margin-bottom: 10px;
     position: relative;
     z-index: 1;
@@ -289,6 +294,7 @@ body::after {
     z-index: 1;
     transition: color 0.3s ease;
 }
+.hero-value.negativo { color: var(--danger); }
 
 .hero-meta {
     display: flex;
@@ -358,7 +364,7 @@ body::after {
 .period-card:hover {
     border-color: var(--border-strong);
     transform: translateY(-2px);
-    box-shadow: 0 15px 35px -20px rgba(88, 86, 214, 0.4);
+    box-shadow: 0 15px 35px -20px rgba(249, 115, 22, 0.4);
 }
 
 .period-head {
@@ -376,11 +382,11 @@ body::after {
     font-weight: 700;
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    color: #c7c8ff;
+    color: #ffd4b3;
     padding: 4px 9px;
     background: var(--primary-soft);
     border-radius: 20px;
-    border: 1px solid rgba(88, 86, 214, 0.3);
+    border: 1px solid var(--primary-border);
 }
 
 .period-badge .dot {
@@ -428,7 +434,7 @@ body::after {
 .period-line strong.up { color: var(--success); }
 .period-line strong.down { color: #f87171; }
 
-/* ============ TRANSACTIONS SECTION ============ */
+/* ============ TRANSACTIONS ============ */
 .section-head {
     display: flex;
     justify-content: space-between;
@@ -545,7 +551,6 @@ li.item:hover {
 li.item.is-pago { opacity: 0.55; }
 
 .item-info { min-width: 0; overflow: hidden; }
-
 .item-desc {
     font-size: 13.5px;
     font-weight: 600;
@@ -584,14 +589,8 @@ li.item.is-pago .item-desc {
     padding: 2px 6px;
     border-radius: 4px;
 }
-.item-tag.tag-entrada {
-    color: #4ade80;
-    background: var(--success-soft);
-}
-.item-tag.tag-despesa {
-    color: #f87171;
-    background: var(--danger-soft);
-}
+.item-tag.tag-entrada { color: #4ade80; background: var(--success-soft); }
+.item-tag.tag-despesa { color: #f87171; background: var(--danger-soft); }
 
 .item-value {
     font-family: 'Space Grotesk', sans-serif;
@@ -611,10 +610,7 @@ li.item.is-pago .item-value { color: var(--text-dim); }
     transition: opacity 0.2s;
 }
 li.item:hover .item-actions { opacity: 1; }
-
-@media (hover: none) {
-    .item-actions { opacity: 0.6; }
-}
+@media (hover: none) { .item-actions { opacity: 0.6; } }
 
 .btn-icon {
     width: 28px;
@@ -666,13 +662,13 @@ li.item:hover .item-actions { opacity: 1; }
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .custom-checkbox-container:hover .checkmark {
-    border-color: rgba(88, 86, 214, 0.6);
-    background-color: rgba(88, 86, 214, 0.1);
+    border-color: rgba(249, 115, 22, 0.6);
+    background-color: rgba(249, 115, 22, 0.1);
 }
 .custom-checkbox-container input:checked ~ .checkmark {
     background-color: var(--primary);
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(88, 86, 214, 0.15), 0 0 14px rgba(88, 86, 214, 0.5);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15), 0 0 14px rgba(249, 115, 22, 0.5);
 }
 .checkmark::after {
     content: "";
@@ -711,12 +707,201 @@ li.item:hover .item-actions { opacity: 1; }
     content: '';
     width: 14px;
     height: 14px;
-    border: 2px solid rgba(88, 86, 214, 0.3);
+    border: 2px solid rgba(249, 115, 22, 0.3);
     border-top-color: var(--primary);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============ DASHBOARD ============ */
+.dash-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 12px 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.dash-title::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--primary);
+    border-radius: 2px;
+    box-shadow: 0 0 8px var(--primary-glow);
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+}
+@media (min-width: 640px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    backdrop-filter: blur(14px);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.kpi-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px -18px rgba(249, 115, 22, 0.4);
+}
+
+.kpi-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--primary-soft);
+    border: 1px solid var(--primary-border);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.kpi-icon svg { width: 14px; height: 14px; }
+.kpi-icon.green { background: var(--success-soft); border-color: rgba(34,197,94,0.3); color: var(--success); }
+.kpi-icon.red { background: var(--danger-soft); border-color: rgba(239,68,68,0.3); color: #f87171; }
+
+.kpi-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.kpi-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #fff;
+    line-height: 1.1;
+}
+.kpi-value.negativo { color: #f87171; }
+.kpi-value.positivo { color: var(--success); }
+.kpi-sub {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 3px;
+    font-weight: 500;
+}
+
+.chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    margin-bottom: 16px;
+    backdrop-filter: blur(14px);
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.chart-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.chart-card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    margin: 0;
+    color: #fff;
+}
+.chart-card-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+}
+.chart-wrap {
+    position: relative;
+    height: 220px;
+    width: 100%;
+}
+.chart-wrap.donut { height: 200px; }
+.chart-wrap.line { height: 200px; }
+
+.dash-month-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.month-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    transition: all 0.2s;
+    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.month-row:hover {
+    border-color: var(--border-strong);
+    transform: translateX(2px);
+}
+.month-row-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.month-row-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.2px;
+}
+.month-row-saldo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+.month-row-saldo.positivo { color: var(--success); }
+.month-row-saldo.negativo { color: #f87171; }
+
+.month-bar-viz {
+    height: 8px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    gap: 2px;
+}
+.month-bar-seg {
+    height: 100%;
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.month-bar-seg.renda { background: linear-gradient(90deg, #22c55e, #4ade80); border-radius: 6px 0 0 6px; }
+.month-bar-seg.despesa { background: linear-gradient(90deg, #f87171, #ef4444); border-radius: 0 6px 6px 0; }
+
+.month-row-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
 
 /* ============ MODAIS ============ */
 .modal-overlay {
@@ -734,9 +919,7 @@ li.item:hover .item-actions { opacity: 1; }
     transition: opacity 0.28s ease;
     padding: 0;
 }
-@media (min-width: 640px) {
-    .modal-overlay { align-items: center; padding: 20px; }
-}
+@media (min-width: 640px) { .modal-overlay { align-items: center; padding: 20px; } }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
 .modal-card {
@@ -833,8 +1016,8 @@ form select {
 }
 form input:focus, form select:focus {
     border-color: var(--primary);
-    background: rgba(88, 86, 214, 0.05);
-    box-shadow: 0 0 0 3px rgba(88, 86, 214, 0.15);
+    background: rgba(249, 115, 22, 0.05);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 form input::placeholder { color: var(--text-dim); }
 
@@ -861,7 +1044,6 @@ form button[type="submit"]:hover {
 }
 form button[type="submit"]:active { transform: scale(0.98); }
 
-/* Config modal */
 .config-block {
     margin-top: 18px;
     background: rgba(255,255,255,0.025);
@@ -886,12 +1068,12 @@ form button[type="submit"]:active { transform: scale(0.98); }
     right: 12px;
     font-size: 11px;
     font-weight: 600;
-    color: #c7c8ff;
+    color: #ffd4b3;
     background: rgba(13, 13, 22, 0.9);
     backdrop-filter: blur(10px);
     padding: 7px 12px 7px 10px;
     border-radius: 20px;
-    border: 1px solid rgba(88, 86, 214, 0.3);
+    border: 1px solid var(--primary-border);
     z-index: 1000;
     align-items: center;
     gap: 7px;
@@ -915,12 +1097,12 @@ form button[type="submit"]:active { transform: scale(0.98); }
 /* ============ FAB ============ */
 .fab-button {
     position: fixed;
-    bottom: 22px;
+    bottom: 92px;
     right: 22px;
     width: 56px;
     height: 56px;
     border-radius: 18px;
-    background: linear-gradient(135deg, var(--primary) 0%, #7c7aeb 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     color: #fff;
     border: none;
     font-size: 26px;
@@ -942,6 +1124,61 @@ form button[type="submit"]:active { transform: scale(0.98); }
 }
 .fab-button:active { transform: scale(0.94); }
 
+/* ============ BOTTOM NAV ============ */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+    background: rgba(8, 8, 14, 0.88);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-top: 1px solid var(--border);
+    z-index: 850;
+}
+.nav-item {
+    flex: 1;
+    max-width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 9px 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    font-size: 10.5px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+    position: relative;
+}
+.nav-item svg { width: 20px; height: 20px; transition: transform 0.22s; }
+.nav-item:hover { color: var(--text-muted); }
+.nav-item.active {
+    color: var(--primary);
+}
+.nav-item.active svg { transform: translateY(-1px) scale(1.05); }
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--primary);
+}
+
 /* ============ ANIMATIONS ============ */
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(14px); }
@@ -956,7 +1193,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
@@ -973,7 +1209,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
     <header class="app-header">
         <div class="brand">
             <h1 class="brand-title">Controle Financeiro</h1>
-            <span class="brand-subtitle">Personal Finance</span>
+            <span class="brand-subtitle" id="brandSub">Personal Finance</span>
         </div>
         <button class="icon-btn" onclick="abrirModalConfig()" title="Configurações" aria-label="Configurações">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -983,163 +1219,247 @@ form button[type="submit"]:active { transform: scale(0.98); }
         </button>
     </header>
 
-    <!-- MONTH BAR -->
-    <div class="month-bar">
-        <div class="month-selector">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-            <select id="selectAba" onchange="trocarAba(this.value)"></select>
+    <!-- ======================= TELA LANÇAMENTOS ======================= -->
+    <div id="telaLancamentos" class="tela active">
+
+        <div class="month-bar">
+            <div class="month-selector">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <select id="selectAba" onchange="trocarAba(this.value)"></select>
+            </div>
+            <div class="month-actions">
+                <button class="btn-mini" onclick="criarNovaAba()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Mês
+                </button>
+                <button class="btn-mini danger" onclick="excluirAbaAtual()" title="Excluir mês atual">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                    </svg>
+                </button>
+            </div>
         </div>
-        <div class="month-actions">
-            <button class="btn-mini" onclick="criarNovaAba()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+
+        <div class="hero-card">
+            <div class="hero-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                Fechamento do mês
+            </div>
+            <div class="hero-value valor-destaque" id="resTot">R$ 0,00</div>
+            <div class="hero-meta">
+                <div class="hero-meta-item">
+                    <div class="hero-meta-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            <polyline points="17 6 23 6 23 12"/>
+                        </svg>
+                        Renda
+                    </div>
+                    <div class="hero-meta-value up" id="rTot">R$ 0,00</div>
+                </div>
+                <div class="hero-meta-item">
+                    <div class="hero-meta-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                            <polyline points="17 18 23 18 23 12"/>
+                        </svg>
+                        Despesas
+                    </div>
+                    <div class="hero-meta-value" id="dTot">R$ 0,00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="period-grid">
+            <div class="period-card">
+                <div class="period-head">
+                    <span class="period-badge"><span class="dot"></span>Dia 05</span>
+                </div>
+                <div class="period-value valor-destaque" id="res05">R$ 0,00</div>
+                <div class="period-lines">
+                    <div class="period-line">
+                        <span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            </svg>
+                            Renda
+                        </span>
+                        <strong class="up" id="r05">R$ 0,00</strong>
+                    </div>
+                    <div class="period-line">
+                        <span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                            </svg>
+                            Despesas
+                        </span>
+                        <strong class="down" id="d05">R$ 0,00</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="period-card">
+                <div class="period-head">
+                    <span class="period-badge"><span class="dot"></span>Dia 20</span>
+                </div>
+                <div class="period-value valor-destaque" id="res20">R$ 0,00</div>
+                <div class="period-lines">
+                    <div class="period-line">
+                        <span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            </svg>
+                            Renda
+                        </span>
+                        <strong class="up" id="r20">R$ 0,00</strong>
+                    </div>
+                    <div class="period-line">
+                        <span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                            </svg>
+                            Despesas
+                        </span>
+                        <strong class="down" id="d20">R$ 0,00</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-head">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"/>
+                    <line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+                Lançamentos
+            </h2>
+            <button class="btn-primary" onclick="abrirModalFormulario()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
-                Mês
-            </button>
-            <button class="btn-mini danger" onclick="excluirAbaAtual()" title="Excluir mês atual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                </svg>
+                Novo
             </button>
         </div>
+
+        <div id="status" class="loading-state">A carregar dados</div>
+
+        <div class="list-group">
+            <div class="list-header">
+                <span>Dia 05</span>
+                <span class="line"></span>
+                <span class="count" id="count05">0</span>
+            </div>
+            <ul id="lista05"></ul>
+        </div>
+
+        <div class="list-group">
+            <div class="list-header">
+                <span>Dia 20</span>
+                <span class="line"></span>
+                <span class="count" id="count20">0</span>
+            </div>
+            <ul id="lista20"></ul>
+        </div>
+
     </div>
 
-    <!-- HERO -->
-    <div class="hero-card">
-        <div class="hero-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-            Fechamento do mês
-        </div>
-        <div class="hero-value valor-destaque" id="resTot">R$ 0,00</div>
-        <div class="hero-meta">
-            <div class="hero-meta-item">
-                <div class="hero-meta-label">
+    <!-- ======================= TELA DASHBOARD ======================= -->
+    <div id="telaDashboard" class="tela">
+
+        <div class="dash-title">Visão Geral</div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card" style="animation-delay: 0.05s;">
+                <div class="kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </div>
+                <div class="kpi-label">Meses</div>
+                <div class="kpi-value" id="kpiTotalMeses">0</div>
+                <div class="kpi-sub">com lançamentos</div>
+            </div>
+            <div class="kpi-card" style="animation-delay: 0.1s;">
+                <div class="kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                </div>
+                <div class="kpi-label">Saldo Médio</div>
+                <div class="kpi-value" id="kpiSaldoMedio">R$ 0,00</div>
+                <div class="kpi-sub">por mês</div>
+            </div>
+            <div class="kpi-card" style="animation-delay: 0.15s;">
+                <div class="kpi-icon green">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
                         <polyline points="17 6 23 6 23 12"/>
                     </svg>
-                    Renda
                 </div>
-                <div class="hero-meta-value up" id="rTot">R$ 0,00</div>
+                <div class="kpi-label">Melhor Mês</div>
+                <div class="kpi-value positivo" id="kpiMelhorMes">R$ 0,00</div>
+                <div class="kpi-sub" id="kpiMelhorMesLabel">—</div>
             </div>
-            <div class="hero-meta-item">
-                <div class="hero-meta-label">
+            <div class="kpi-card" style="animation-delay: 0.2s;">
+                <div class="kpi-icon red">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
                         <polyline points="17 18 23 18 23 12"/>
                     </svg>
-                    Despesas
                 </div>
-                <div class="hero-meta-value" id="dTot">R$ 0,00</div>
+                <div class="kpi-label">Pior Mês</div>
+                <div class="kpi-value negativo" id="kpiPiorMes">R$ 0,00</div>
+                <div class="kpi-sub" id="kpiPiorMesLabel">—</div>
             </div>
         </div>
-    </div>
 
-    <!-- PERIOD CARDS -->
-    <div class="period-grid">
-        <div class="period-card">
-            <div class="period-head">
-                <span class="period-badge"><span class="dot"></span>Dia 05</span>
-            </div>
-            <div class="period-value valor-destaque" id="res05">R$ 0,00</div>
-            <div class="period-lines">
-                <div class="period-line">
-                    <span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                        </svg>
-                        Renda
-                    </span>
-                    <strong class="up" id="r05">R$ 0,00</strong>
-                </div>
-                <div class="period-line">
-                    <span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-                        </svg>
-                        Despesas
-                    </span>
-                    <strong class="down" id="d05">R$ 0,00</strong>
+        <div class="chart-card" style="animation-delay: 0.25s;">
+            <div class="chart-card-head">
+                <div>
+                    <h3 class="chart-card-title">Renda vs Despesas</h3>
+                    <p class="chart-card-sub">Comparativo por mês</p>
                 </div>
             </div>
-        </div>
-        <div class="period-card">
-            <div class="period-head">
-                <span class="period-badge"><span class="dot"></span>Dia 20</span>
-            </div>
-            <div class="period-value valor-destaque" id="res20">R$ 0,00</div>
-            <div class="period-lines">
-                <div class="period-line">
-                    <span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                        </svg>
-                        Renda
-                    </span>
-                    <strong class="up" id="r20">R$ 0,00</strong>
-                </div>
-                <div class="period-line">
-                    <span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-                        </svg>
-                        Despesas
-                    </span>
-                    <strong class="down" id="d20">R$ 0,00</strong>
-                </div>
+            <div class="chart-wrap">
+                <canvas id="chartBarras"></canvas>
             </div>
         </div>
-    </div>
 
-    <!-- TRANSACTIONS -->
-    <div class="section-head">
-        <h2 class="section-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="8" y1="6" x2="21" y2="6"/>
-                <line x1="8" y1="12" x2="21" y2="12"/>
-                <line x1="8" y1="18" x2="21" y2="18"/>
-                <line x1="3" y1="6" x2="3.01" y2="6"/>
-                <line x1="3" y1="12" x2="3.01" y2="12"/>
-                <line x1="3" y1="18" x2="3.01" y2="18"/>
-            </svg>
-            Lançamentos
-        </h2>
-        <button class="btn-primary" onclick="abrirModalFormulario()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Novo
-        </button>
-    </div>
-
-    <div id="status" class="loading-state">A carregar dados</div>
-
-    <div class="list-group">
-        <div class="list-header">
-            <span>Dia 05</span>
-            <span class="line"></span>
-            <span class="count" id="count05">0</span>
+        <div class="chart-card" style="animation-delay: 0.3s;">
+            <div class="chart-card-head">
+                <div>
+                    <h3 class="chart-card-title">Evolução do Saldo</h3>
+                    <p class="chart-card-sub">Tendência mensal</p>
+                </div>
+            </div>
+            <div class="chart-wrap line">
+                <canvas id="chartLinha"></canvas>
+            </div>
         </div>
-        <ul id="lista05"></ul>
-    </div>
 
-    <div class="list-group">
-        <div class="list-header">
-            <span>Dia 20</span>
-            <span class="line"></span>
-            <span class="count" id="count20">0</span>
-        </div>
-        <ul id="lista20"></ul>
+        <div class="dash-title">Detalhamento Mensal</div>
+        <div class="dash-month-list" id="dashMonthList"></div>
+
     </div>
 
 </div>
@@ -1190,6 +1510,28 @@ form button[type="submit"]:active { transform: scale(0.98); }
 
 <button class="fab-button" onclick="abrirModalFormulario()" aria-label="Novo lançamento">+</button>
 
+<nav class="bottom-nav">
+    <button class="nav-item active" data-tab="lancamentos" onclick="mudarTela('lancamentos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/>
+            <line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+        Lançamentos
+    </button>
+    <button class="nav-item" data-tab="dashboard" onclick="mudarTela('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        Dashboard
+    </button>
+</nav>
+
 <script>
     const SUPABASE_URL = 'https://uvpwporikumehelsuebg.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cHdwb3Jpa3VtZWhlbHN1ZWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNzgzODgsImV4cCI6MjEwNTc1NDM4OH0.P4vcRUqgQLnq_6fmWYLaizyJ9znY5jUa4flYAVvt_UY';
@@ -1200,6 +1542,10 @@ form button[type="submit"]:active { transform: scale(0.98); }
     let listaAbasGlobal = ['Outubro', 'Novembro'];
     let syncsPendentes = 0;
     let abaterApenasPagos = localStorage.getItem('abaterApenasPagos') === 'true';
+    let telaAtual = 'lancamentos';
+
+    let chartBarras = null;
+    let chartLinha = null;
 
     const lancamentosPadrao = [
         { descricao: 'Salario Bruno', valor: 980.00, data_pgto: '5', tipo: 'entrada', pago: false },
@@ -1218,8 +1564,29 @@ form button[type="submit"]:active { transform: scale(0.98); }
         { descricao: 'Supermercado', valor: 750.00, data_pgto: '20', tipo: 'despesa', pago: false }
     ];
 
+    const MESES_ORDEM = {
+        'janeiro': 1, 'fevereiro': 2, 'março': 3, 'marco': 3, 'abril': 4,
+        'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8, 'setembro': 9,
+        'outubro': 10, 'novembro': 11, 'dezembro': 12
+    };
+
     function formatarMoeda(valor) {
         return (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function formatarMoedaCompacta(valor) {
+        const abs = Math.abs(valor);
+        if (abs >= 1000000) return 'R$ ' + (valor / 1000000).toFixed(1) + 'M';
+        if (abs >= 1000) return 'R$ ' + (valor / 1000).toFixed(1) + 'k';
+        return 'R$ ' + valor.toFixed(0);
+    }
+
+    function ordenarMeses(arr) {
+        return [...arr].sort((a, b) => {
+            const ma = MESES_ORDEM[String(a).toLowerCase().trim()] || 99;
+            const mb = MESES_ORDEM[String(b).toLowerCase().trim()] || 99;
+            return ma - mb;
+        });
     }
 
     function gerenciarSyncState(delta) {
@@ -1272,6 +1639,9 @@ form button[type="submit"]:active { transform: scale(0.98); }
     function filtrarErenderizar() {
         const dadosLocais = cacheGlobalDados.filter(item => String(item.aba).trim().toLowerCase() === String(abaSelecionada).trim().toLowerCase());
         renderizarTela(dadosLocais);
+        if (telaAtual === 'dashboard') {
+            renderizarDashboard();
+        }
     }
 
     function atualizarSelectAbas() {
@@ -1291,25 +1661,39 @@ form button[type="submit"]:active { transform: scale(0.98); }
         filtrarErenderizar();
     }
 
+    /* ============ TROCA DE TELA ============ */
+    function mudarTela(tela) {
+        telaAtual = tela;
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tela));
+        document.getElementById('telaLancamentos').classList.toggle('active', tela === 'lancamentos');
+        document.getElementById('telaDashboard').classList.toggle('active', tela === 'dashboard');
+        document.querySelector('.fab-button').style.display = tela === 'lancamentos' ? 'flex' : 'none';
+        document.getElementById('brandSub').innerText = tela === 'dashboard' ? 'Dashboard' : 'Personal Finance';
+
+        if (tela === 'dashboard') {
+            // pequeno delay para garantir dimensões do container
+            setTimeout(renderizarDashboard, 60);
+        }
+    }
+
+    /* ============ CONFIG ============ */
     function abrirModalConfig() {
         document.getElementById('checkDescontoReal').checked = abaterApenasPagos;
         document.getElementById('modalConfig').classList.add('active');
     }
-
     function fecharModalConfig() {
         document.getElementById('modalConfig').classList.remove('active');
     }
-
     function fecharModalConfigFora(e) {
         if (e.target.id === 'modalConfig') fecharModalConfig();
     }
-
     function alternarModoCalculo(isCalculated) {
         abaterApenasPagos = isCalculated;
         localStorage.setItem('abaterApenasPagos', isCalculated);
         filtrarErenderizar();
     }
 
+    /* ============ ITENS ============ */
     async function alternarStatusPagamento(id, isChecked) {
         const index = cacheGlobalDados.findIndex(i => String(i.id) === String(id));
         if (index !== -1) {
@@ -1326,14 +1710,12 @@ form button[type="submit"]:active { transform: scale(0.98); }
         document.getElementById('modalForm').classList.add('active');
         setTimeout(() => document.getElementById('descricao').focus(), 200);
     }
-
     function fecharModalFormulario() {
         document.getElementById('modalForm').classList.remove('active');
         document.getElementById('editId').value = '';
         document.getElementById('formTransacao').reset();
         document.getElementById('modalTitulo').innerText = 'Incluir Lançamento';
     }
-
     function fecharModalAoClicarFora(e) {
         if (e.target.id === 'modalForm') fecharModalFormulario();
     }
@@ -1351,10 +1733,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         abaSelecionada = nomeLimpo;
         atualizarSelectAbas();
 
-        const novosLancamentos = lancamentosPadrao.map(item => ({
-            ...item,
-            aba: nomeLimpo
-        }));
+        const novosLancamentos = lancamentosPadrao.map(item => ({ ...item, aba: nomeLimpo }));
 
         gerenciarSyncState(1);
         const { data, error } = await supabaseClient.from('lancamentos').insert(novosLancamentos).select();
@@ -1364,7 +1743,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
         } else {
             await carregarDadosSilencioso();
         }
-
         gerenciarSyncState(-1);
         filtrarErenderizar();
     }
@@ -1376,9 +1754,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         cacheGlobalDados = cacheGlobalDados.filter(i => String(i.aba).trim().toLowerCase() !== abaParaExcluir.toLowerCase());
         listaAbasGlobal = listaAbasGlobal.filter(a => a.toLowerCase() !== abaParaExcluir.toLowerCase());
 
-        if (listaAbasGlobal.length === 0) {
-            listaAbasGlobal = ['Outubro'];
-        }
+        if (listaAbasGlobal.length === 0) listaAbasGlobal = ['Outubro'];
         abaSelecionada = listaAbasGlobal[0];
 
         atualizarSelectAbas();
@@ -1413,11 +1789,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         } else {
             const { data, error } = await supabaseClient.from('lancamentos').insert([{
                 aba: abaSelecionada,
-                descricao,
-                valor,
-                data_pgto: dataPgto,
-                tipo,
-                pago: false
+                descricao, valor, data_pgto: dataPgto, tipo, pago: false
             }]).select();
 
             if (!error && data && data.length > 0) {
@@ -1427,7 +1799,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
             }
             filtrarErenderizar();
         }
-
         gerenciarSyncState(-1);
     }
 
@@ -1445,7 +1816,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
 
     async function excluirTransacao(id) {
         if (!confirm('Apagar este item?')) return;
-
         cacheGlobalDados = cacheGlobalDados.filter(i => String(i.id) !== String(id));
         filtrarErenderizar();
 
@@ -1454,6 +1824,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         gerenciarSyncState(-1);
     }
 
+    /* ============ RENDER LANÇAMENTOS ============ */
     function renderizarTela(dadosLocais) {
         let r05 = 0, d05 = 0, r20 = 0, d20 = 0;
         const ul05 = document.getElementById('lista05');
@@ -1468,8 +1839,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
             return (parseFloat(b.valor) || 0) - (parseFloat(a.valor) || 0);
         });
 
-        let count05 = 0;
-        let count20 = 0;
+        let count05 = 0, count20 = 0;
 
         dadosOrdenados.forEach((item, idx) => {
             const val = parseFloat(item.valor) || 0;
@@ -1523,9 +1893,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
             `;
 
             let valorDespesaCalculado = val;
-            if (ehDespesa && abaterApenasPagos && !taPago) {
-                valorDespesaCalculado = 0;
-            }
+            if (ehDespesa && abaterApenasPagos && !taPago) valorDespesaCalculado = 0;
 
             if (ehDia20) {
                 if (!ehDespesa) r20 += val; else d20 += valorDespesaCalculado;
@@ -1538,17 +1906,11 @@ form button[type="submit"]:active { transform: scale(0.98); }
             }
         });
 
-        // Empty states
-        if (count05 === 0) {
-            ul05.innerHTML = `<div class="empty-state">Nenhum lançamento neste período</div>`;
-        }
-        if (count20 === 0) {
-            ul20.innerHTML = `<div class="empty-state">Nenhum lançamento neste período</div>`;
-        }
+        if (count05 === 0) ul05.innerHTML = `<div class="empty-state">Nenhum lançamento neste período</div>`;
+        if (count20 === 0) ul20.innerHTML = `<div class="empty-state">Nenhum lançamento neste período</div>`;
         document.getElementById('count05').innerText = count05;
         document.getElementById('count20').innerText = count20;
 
-        // Resumo dia 05
         document.getElementById('r05').innerText = formatarMoeda(r05);
         document.getElementById('d05').innerText = formatarMoeda(d05);
         const saldo05 = r05 - d05;
@@ -1556,7 +1918,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
         elRes05.innerText = formatarMoeda(saldo05);
         elRes05.classList.toggle('negativo', saldo05 < 0);
 
-        // Resumo dia 20
         document.getElementById('r20').innerText = formatarMoeda(r20);
         document.getElementById('d20').innerText = formatarMoeda(d20);
         const saldo20 = r20 - d20;
@@ -1564,17 +1925,261 @@ form button[type="submit"]:active { transform: scale(0.98); }
         elRes20.innerText = formatarMoeda(saldo20);
         elRes20.classList.toggle('negativo', saldo20 < 0);
 
-        // Fechamento
         const totalRenda = r05 + r20;
         const totalDespesas = d05 + d20;
         const totalSobra = totalRenda - totalDespesas;
 
         document.getElementById('rTot').innerText = formatarMoeda(totalRenda);
         document.getElementById('dTot').innerText = formatarMoeda(totalDespesas);
-
         const elResTot = document.getElementById('resTot');
         elResTot.innerText = formatarMoeda(totalSobra);
         elResTot.classList.toggle('negativo', totalSobra < 0);
+    }
+
+    /* ============ DASHBOARD ============ */
+    function calcularStatsMes(nomeAba) {
+        const dados = cacheGlobalDados.filter(d => String(d.aba).trim().toLowerCase() === String(nomeAba).trim().toLowerCase());
+        let renda = 0, despesas = 0;
+        dados.forEach(d => {
+            const v = parseFloat(d.valor) || 0;
+            if (d.tipo === 'entrada') renda += v;
+            else despesas += v;
+        });
+        return { mes: nomeAba, renda, despesas, saldo: renda - despesas };
+    }
+
+    function renderizarDashboard() {
+        const mesesOrdenados = ordenarMeses(listaAbasGlobal);
+        const stats = mesesOrdenados.map(m => calcularStatsMes(m));
+
+        const ativos = stats.filter(s => s.renda > 0 || s.despesas > 0);
+        const totalMeses = ativos.length;
+        const saldoMedio = totalMeses ? ativos.reduce((a, s) => a + s.saldo, 0) / totalMeses : 0;
+
+        let melhorMes = null, piorMes = null;
+        ativos.forEach(s => {
+            if (!melhorMes || s.saldo > melhorMes.saldo) melhorMes = s;
+            if (!piorMes || s.saldo < piorMes.saldo) piorMes = s;
+        });
+
+        document.getElementById('kpiTotalMeses').innerText = totalMeses;
+
+        const elSaldoMedio = document.getElementById('kpiSaldoMedio');
+        elSaldoMedio.innerText = formatarMoeda(saldoMedio);
+        elSaldoMedio.classList.toggle('positivo', saldoMedio >= 0);
+        elSaldoMedio.classList.toggle('negativo', saldoMedio < 0);
+
+        if (melhorMes) {
+            document.getElementById('kpiMelhorMes').innerText = formatarMoeda(melhorMes.saldo);
+            document.getElementById('kpiMelhorMesLabel').innerText = melhorMes.mes;
+        } else {
+            document.getElementById('kpiMelhorMes').innerText = 'R$ 0,00';
+            document.getElementById('kpiMelhorMesLabel').innerText = '—';
+        }
+        if (piorMes) {
+            document.getElementById('kpiPiorMes').innerText = formatarMoeda(piorMes.saldo);
+            document.getElementById('kpiPiorMesLabel').innerText = piorMes.mes;
+        } else {
+            document.getElementById('kpiPiorMes').innerText = 'R$ 0,00';
+            document.getElementById('kpiPiorMesLabel').innerText = '—';
+        }
+
+        renderizarChartBarras(stats);
+        renderizarChartLinha(stats);
+        renderizarListaMeses(stats);
+    }
+
+    function renderizarChartBarras(stats) {
+        const canvas = document.getElementById('chartBarras');
+        if (!canvas) return;
+        if (chartBarras) chartBarras.destroy();
+
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.font.size = 11;
+        Chart.defaults.color = '#94a3b8';
+
+        const labels = stats.map(s => s.mes);
+
+        chartBarras = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Renda',
+                        data: stats.map(s => s.renda),
+                        backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                        hoverBackgroundColor: 'rgba(34, 197, 94, 0.95)',
+                        borderRadius: 6,
+                        maxBarThickness: 30,
+                    },
+                    {
+                        label: 'Despesas',
+                        data: stats.map(s => s.despesas),
+                        backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                        hoverBackgroundColor: 'rgba(239, 68, 68, 0.95)',
+                        borderRadius: 6,
+                        maxBarThickness: 30,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            color: '#cbd5e1',
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 14,
+                            font: { size: 11, weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(13, 13, 22, 0.96)',
+                        borderColor: 'rgba(249, 115, 22, 0.35)',
+                        borderWidth: 1,
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: true,
+                        boxPadding: 4,
+                        callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}: ${formatarMoeda(ctx.parsed.y)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { color: '#94a3b8', font: { size: 11, weight: '600' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 10 },
+                            callback: v => formatarMoedaCompacta(v)
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderizarChartLinha(stats) {
+        const canvas = document.getElementById('chartLinha');
+        if (!canvas) return;
+        if (chartLinha) chartLinha.destroy();
+
+        const labels = stats.map(s => s.mes);
+        const saldos = stats.map(s => s.saldo);
+
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+        gradient.addColorStop(0, 'rgba(249, 115, 22, 0.35)');
+        gradient.addColorStop(1, 'rgba(249, 115, 22, 0.0)');
+
+        chartLinha = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Saldo',
+                    data: saldos,
+                    borderColor: '#f97316',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#f97316',
+                    pointBorderColor: '#0d0d16',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: '#fb923c',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(13, 13, 22, 0.96)',
+                        borderColor: 'rgba(249, 115, 22, 0.35)',
+                        borderWidth: 1,
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        padding: 12,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: ctx => ` Saldo: ${formatarMoeda(ctx.parsed.y)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { color: '#94a3b8', font: { size: 11, weight: '600' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 10 },
+                            callback: v => formatarMoedaCompacta(v)
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderizarListaMeses(stats) {
+        const container = document.getElementById('dashMonthList');
+        container.innerHTML = '';
+
+        if (stats.length === 0) {
+            container.innerHTML = `<div class="empty-state">Sem dados para exibir</div>`;
+            return;
+        }
+
+        // maior valor para escala das barras
+        const maxValor = Math.max(1, ...stats.map(s => Math.max(s.renda, s.despesas)));
+
+        stats.forEach((s, i) => {
+            const rendaPct = (s.renda / maxValor) * 100;
+            const despesaPct = (s.despesas / maxValor) * 100;
+            const total = s.renda + s.despesas;
+            const totalPctRenda = total > 0 ? (s.renda / total) * 100 : 50;
+            const totalPctDespesa = total > 0 ? (s.despesas / total) * 100 : 50;
+
+            const row = document.createElement('div');
+            row.className = 'month-row';
+            row.style.animationDelay = `${i * 0.05}s`;
+            row.innerHTML = `
+                <div class="month-row-head">
+                    <span class="month-row-name">${s.mes}</span>
+                    <span class="month-row-saldo ${s.saldo >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(s.saldo)}</span>
+                </div>
+                <div class="month-bar-viz">
+                    <div class="month-bar-seg renda" style="width: ${totalPctRenda}%"></div>
+                    <div class="month-bar-seg despesa" style="width: ${totalPctDespesa}%"></div>
+                </div>
+                <div class="month-row-info">
+                    <span>▲ ${formatarMoeda(s.renda)}</span>
+                    <span>▼ ${formatarMoeda(s.despesas)}</span>
+                </div>
+            `;
+            container.appendChild(row);
+        });
     }
 
     window.addEventListener('DOMContentLoaded', () => {
