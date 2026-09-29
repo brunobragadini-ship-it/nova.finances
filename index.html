@@ -1,266 +1,1164 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#030305">
-    <title>Controle Financeiro Multimeses</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#030305">
+<title>Controle Financeiro</title>
 
-    <!-- SDK do Supabase JS (v2) -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        :root { 
-            --primary: #5856d6; 
-            --primary-hover: #4b48c8; 
-            --success: #22c55e; 
-            --danger: #ef4444; 
-            --bg: #030305; 
-            --card: rgba(13, 13, 20, 0.85); 
-            --card-border: rgba(255, 255, 255, 0.06); 
-            --text: #f8fafc; 
-            --text-muted: #94a3b8;
-        }
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-        body { 
-            font-family: 'Montserrat', system-ui, -apple-system, sans-serif; 
-            background: radial-gradient(circle at 50% -10%, #16122d 0%, #080711 45%, #030305 100%); 
-            background-attachment: fixed;
-            color: var(--text); 
-            margin: 0; 
-            padding: 16px; 
-            padding-bottom: 85px; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+<style>
+:root {
+    --primary: #5856d6;
+    --primary-hover: #4b48c8;
+    --primary-glow: rgba(88, 86, 214, 0.45);
+    --primary-soft: rgba(88, 86, 214, 0.12);
+    --success: #22c55e;
+    --success-soft: rgba(34, 197, 94, 0.12);
+    --danger: #ef4444;
+    --danger-soft: rgba(239, 68, 68, 0.12);
+    --bg: #030305;
+    --surface: rgba(15, 15, 24, 0.72);
+    --surface-2: rgba(22, 22, 34, 0.78);
+    --border: rgba(255, 255, 255, 0.06);
+    --border-strong: rgba(255, 255, 255, 0.12);
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+}
 
-        .container { max-width: 780px; margin: 0 auto; }
+*, *::before, *::after { box-sizing: border-box; }
 
-        .header-app { display: flex; justify-content: center; align-items: center; margin-top: 10px; margin-bottom: 18px; }
-        h1 { font-family: 'Montserrat', sans-serif; font-weight: 700; color: #ffffff; margin: 0; font-size: 21px; text-align: center; text-transform: uppercase; letter-spacing: 1.5px; }
+html, body { margin: 0; padding: 0; }
 
-        .bar-abas { 
-            display: flex; gap: 8px; align-items: center; justify-content: space-between; 
-            background: var(--card); backdrop-filter: blur(12px);
-            padding: 10px 14px; border-radius: 12px; border: 1px solid var(--card-border); 
-            margin-bottom: 18px; flex-wrap: wrap; box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
-        }
-        .bar-abas select { 
-            padding: 7px 12px; background: #060609; color: #fff; border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 7px; font-weight: bold; font-size: 13px; outline: none; cursor: pointer; 
-        }
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #030305;
+    color: var(--text);
+    padding: 0;
+    padding-bottom: 110px;
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+}
 
-        .btn-header { 
-            background: rgba(255, 255, 255, 0.04); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.08); 
-            padding: 7px 12px; border-radius: 7px; font-weight: 600; cursor: pointer; font-size: 12px; 
-            transition: all 0.2s ease; 
-        }
-        .btn-header:hover { background: rgba(255, 255, 255, 0.08); }
-        .btn-header:active { transform: scale(0.96); }
-        .btn-novo-item { background: var(--primary); color: #fff; border: none; }
-        .btn-novo-item:hover { background: var(--primary-hover); }
-        .btn-excluir-aba { background: transparent; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .btn-excluir-aba:hover { background: rgba(239, 68, 68, 0.1); }
-        .btn-config { background: transparent; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 7px 10px; display: flex; align-items: center; gap: 5px;}
+/* Ambient glows */
+body::before {
+    content: '';
+    position: fixed;
+    top: -35%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130%;
+    height: 75%;
+    background: radial-gradient(ellipse at center, rgba(88, 86, 214, 0.22) 0%, rgba(88, 86, 214, 0.06) 40%, transparent 72%);
+    pointer-events: none;
+    z-index: 0;
+}
+body::after {
+    content: '';
+    position: fixed;
+    bottom: -35%;
+    right: -25%;
+    width: 90%;
+    height: 70%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.09) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+}
 
-        .painel-resumos { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 18px; 
-        }
-        .card-resumo { 
-            border-radius: 14px; padding: 16px; 
-            background: rgba(14, 15, 24, 0.7); backdrop-filter: blur(12px);
-            border: 1px solid rgba(120, 119, 198, 0.15); 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .card-resumo:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(88, 86, 214, 0.15); }
-        .card-resumo h3 { margin: 0 0 6px 0; font-size: 13px; text-align: center; color: var(--text-muted); font-weight: 500; }
+.container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 22px 16px 0;
+    position: relative;
+    z-index: 1;
+}
 
-        .valor-destaque { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 12px; color: #ffffff; letter-spacing: -0.5px; }
-        .valor-destaque.negativo { color: var(--danger); }
+/* ============ HEADER ============ */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    gap: 12px;
+    animation: fadeDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 
-        .linha-resumo { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: var(--text-muted); }
-        .linha-resumo strong { color: #f1f5f9; font-weight: 600; }
+.brand { display: flex; flex-direction: column; gap: 3px; }
 
-        .card { 
-            background: var(--card); backdrop-filter: blur(12px);
-            padding: 18px; border-radius: 16px; margin-bottom: 16px; 
-            border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
-        }
-        .card h2 { text-align: left; margin-top: 0; margin-bottom: 16px; font-size: 19px; font-weight: 700; }
+.brand-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.6px;
+    margin: 0;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #ffffff 0%, #c7c8ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 
-        .subtitulo { 
-            font-size: 12px; color: #cbd5e1; background: rgba(255, 255, 255, 0.03); 
-            padding: 6px 12px; border-radius: 16px; font-weight: 600; margin-top: 16px; margin-bottom: 8px;
-            display: inline-block; border: 1px solid rgba(255, 255, 255, 0.06); 
-        }
+.brand-subtitle {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
 
-        ul { list-style: none; padding: 0; margin: 0 0 12px 0; }
-        li { 
-            display: flex; justify-content: space-between; padding: 12px 10px; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04); align-items: center; font-size: 13.5px; 
-            transition: background 0.15s ease; gap: 8px;
-        }
-        li:hover { background: rgba(255, 255, 255, 0.02); }
-        li.is-entrada { border-left: 3px solid var(--success); border-radius: 4px 0 0 4px; }
-        li.is-despesa { border-left: 3px solid var(--danger); border-radius: 4px 0 0 4px; }
-        li.is-pago { opacity: 0.6; }
+.icon-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+}
+.icon-btn:hover {
+    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-2);
+    transform: translateY(-1px);
+}
+.icon-btn:active { transform: scale(0.94); }
+.icon-btn svg { width: 18px; height: 18px; }
 
-        .valor-item { 
-            font-weight: 700; 
-            font-size: 14px; 
-            white-space: nowrap; 
-        }
+/* ============ MONTH BAR ============ */
+.month-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--surface);
+    backdrop-filter: blur(14px);
+    padding: 8px 8px 8px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    animation: fadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.05s;
+}
 
-        .btn-acao { background: transparent; border: none; cursor: pointer; font-size: 14px; margin-left: 6px; opacity: 0.5; transition: opacity 0.2s; color: #fff; padding: 0; }
-        .btn-acao:hover { opacity: 1; }
+.month-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
 
-        .modal-overlay { display: flex; opacity: 0; pointer-events: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 999; justify-content: center; align-items: center; transition: opacity 0.25s ease; }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: #0b0b12; padding: 20px; border-radius: 16px; width: 88%; max-width: 380px; border: 1px solid var(--card-border); transform: translateY(20px) scale(0.95); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
-        .modal-overlay.active .modal-card { transform: translateY(0) scale(1); }
-        form input:not([type="checkbox"]), form select { width: 100%; padding: 10px; margin-bottom: 10px; background: #050508; border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 13px; outline: none; }
-        form button { width: 100%; padding: 10px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 5px; }
-        .btn-fechar-modal { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; font-weight: bold; }
-        #syncIndicator { display: none; font-size: 11px; color: #a5b4fc; position: fixed; top: 10px; right: 10px; background: #09090e; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
-        .fab-button { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 25px; font-size: 22px; box-shadow: 0 8px 20px rgba(0,0,0,0.8); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 900; }
-        
-        /* CHECKBOX MODERNO COM GLASSMORPHISM E REMOÇÃO DO NATIVO DO NAVEGADOR */
-        .custom-checkbox-container {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
-            margin-right: 12px;
-            flex-shrink: 0;
-            position: relative;
-        }
+.month-selector svg {
+    width: 15px;
+    height: 15px;
+    color: var(--primary);
+    flex-shrink: 0;
+    opacity: 0.85;
+}
 
-        .custom-checkbox-container input {
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            appearance: none !important;
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-            margin: 0;
-        }
+#selectAba {
+    background: transparent;
+    color: #fff;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.2px;
+    outline: none;
+    cursor: pointer;
+    padding: 6px 4px;
+    padding-right: 22px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b95a8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 2px center;
+    background-size: 14px;
+    flex: 1;
+    min-width: 0;
+    text-overflow: ellipsis;
+}
+#selectAba option { background: #0b0b12; color: #fff; }
 
-        .checkmark {
-            height: 20px;
-            width: 20px;
-            background-color: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(8px);
-            border: 1.5px solid rgba(255, 255, 255, 0.18);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
+.month-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
-        .custom-checkbox-container:hover .checkmark {
-            border-color: rgba(88, 86, 214, 0.6);
-            background-color: rgba(88, 86, 214, 0.12);
-            box-shadow: 0 0 10px rgba(88, 86, 214, 0.25);
-        }
+.btn-mini {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-family: 'Inter', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+.btn-mini:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.07);
+    border-color: var(--border-strong);
+}
+.btn-mini:active { transform: scale(0.95); }
+.btn-mini.danger { color: #f87171; border-color: rgba(239, 68, 68, 0.25); }
+.btn-mini.danger:hover { background: rgba(239, 68, 68, 0.12); }
+.btn-mini svg { width: 12px; height: 12px; }
 
-        .custom-checkbox-container input:checked ~ .checkmark {
-            background-color: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 0 12px rgba(88, 86, 214, 0.5);
-        }
+/* ============ HERO CARD ============ */
+.hero-card {
+    position: relative;
+    border-radius: var(--radius-lg);
+    padding: 26px 24px;
+    background: linear-gradient(145deg, rgba(88, 86, 214, 0.18) 0%, rgba(20, 20, 34, 0.9) 60%);
+    border: 1px solid rgba(120, 119, 198, 0.22);
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px -20px rgba(88, 86, 214, 0.3), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.1s;
+}
 
-        .checkmark:after {
-            content: "";
-            display: none;
-            width: 5px;
-            height: 9px;
-            border: solid #ffffff;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-            margin-bottom: 2px;
-        }
+.hero-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 60%;
+    height: 180%;
+    background: radial-gradient(circle, rgba(88, 86, 214, 0.35) 0%, transparent 65%);
+    pointer-events: none;
+    filter: blur(20px);
+}
 
-        .custom-checkbox-container input:checked ~ .checkmark:after {
-            display: block;
-        }
-    </style>
+.hero-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 40%);
+    pointer-events: none;
+}
+
+.hero-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: rgba(199, 200, 255, 0.85);
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+}
+.hero-label svg { width: 14px; height: 14px; }
+
+.hero-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -1.8px;
+    line-height: 1;
+    color: #ffffff;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s ease;
+}
+
+.hero-meta {
+    display: flex;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-meta-item {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255,255,255,0.05);
+    backdrop-filter: blur(8px);
+}
+
+.hero-meta-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.hero-meta-label svg { width: 11px; height: 11px; }
+
+.hero-meta-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: #f8fafc;
+}
+.hero-meta-value.up { color: var(--success); }
+
+/* ============ PERIOD GRID ============ */
+.period-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 480px) {
+    .period-grid { grid-template-columns: 1fr; }
+    .hero-value { font-size: 34px; }
+}
+
+.period-card {
+    background: var(--surface);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    position: relative;
+    overflow: hidden;
+}
+.period-card:nth-child(1) { animation-delay: 0.15s; }
+.period-card:nth-child(2) { animation-delay: 0.2s; }
+
+.period-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px -20px rgba(88, 86, 214, 0.4);
+}
+
+.period-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.period-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #c7c8ff;
+    padding: 4px 9px;
+    background: var(--primary-soft);
+    border-radius: 20px;
+    border: 1px solid rgba(88, 86, 214, 0.3);
+}
+
+.period-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 8px var(--primary);
+}
+
+.period-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.9px;
+    color: #ffffff;
+    margin-bottom: 14px;
+    line-height: 1.1;
+    transition: color 0.3s ease;
+}
+.period-value.negativo { color: var(--danger); }
+
+.period-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(255,255,255,0.06);
+}
+
+.period-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+.period-line span { color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+.period-line span svg { width: 11px; height: 11px; }
+.period-line strong {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: #e2e8f0;
+    letter-spacing: -0.2px;
+}
+.period-line strong.up { color: var(--success); }
+.period-line strong.down { color: #f87171; }
+
+/* ============ TRANSACTIONS SECTION ============ */
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding: 0 4px;
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.25s;
+}
+
+.section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.section-title svg { width: 16px; height: 16px; color: var(--primary); }
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 20px -8px var(--primary-glow);
+}
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px -8px var(--primary-glow);
+}
+.btn-primary:active { transform: scale(0.96); }
+.btn-primary svg { width: 13px; height: 13px; }
+
+.list-group { margin-bottom: 20px; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.list-group:nth-of-type(1) { animation-delay: 0.3s; }
+.list-group:nth-of-type(2) { animation-delay: 0.35s; }
+
+.list-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    padding: 0 6px;
+}
+.list-header .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+}
+.list-header .count {
+    font-size: 10px;
+    background: rgba(255,255,255,0.05);
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: var(--text-dim);
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+
+li.item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    animation: itemIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+li.item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12%;
+    height: 76%;
+    width: 3px;
+    border-radius: 0 4px 4px 0;
+    background: var(--danger);
+    opacity: 0.9;
+}
+li.item.is-entrada::before { background: var(--success); }
+
+li.item:hover {
+    background: var(--surface-2);
+    border-color: var(--border-strong);
+    transform: translateX(2px);
+}
+
+li.item.is-pago { opacity: 0.55; }
+
+.item-info { min-width: 0; overflow: hidden; }
+
+.item-desc {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.1px;
+}
+li.item.is-pago .item-desc {
+    text-decoration: line-through;
+    color: var(--text-dim);
+}
+
+.item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 3px;
+}
+.item-date {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+.item-date svg { width: 9px; height: 9px; }
+
+.item-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.item-tag.tag-entrada {
+    color: #4ade80;
+    background: var(--success-soft);
+}
+.item-tag.tag-despesa {
+    color: #f87171;
+    background: var(--danger-soft);
+}
+
+.item-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+}
+.item-value.up { color: var(--success); }
+.item-value.down { color: #f87171; }
+li.item.is-pago .item-value { color: var(--text-dim); }
+
+.item-actions {
+    display: flex;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+li.item:hover .item-actions { opacity: 1; }
+
+@media (hover: none) {
+    .item-actions { opacity: 0.6; }
+}
+
+.btn-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+.btn-icon:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.btn-icon.danger:hover { color: #f87171; background: var(--danger-soft); }
+.btn-icon svg { width: 13px; height: 13px; }
+
+/* Checkbox moderno */
+.custom-checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+    position: relative;
+    width: 22px;
+    height: 22px;
+}
+.custom-checkbox-container input {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    position: absolute;
+    opacity: 0;
+    height: 0; width: 0;
+    margin: 0;
+}
+.checkmark {
+    height: 22px;
+    width: 22px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.custom-checkbox-container:hover .checkmark {
+    border-color: rgba(88, 86, 214, 0.6);
+    background-color: rgba(88, 86, 214, 0.1);
+}
+.custom-checkbox-container input:checked ~ .checkmark {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(88, 86, 214, 0.15), 0 0 14px rgba(88, 86, 214, 0.5);
+}
+.checkmark::after {
+    content: "";
+    display: none;
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+}
+.custom-checkbox-container input:checked ~ .checkmark::after { display: block; }
+
+.empty-state {
+    text-align: center;
+    padding: 24px 16px;
+    color: var(--text-dim);
+    font-size: 12.5px;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    font-style: italic;
+}
+
+.loading-state {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 40px 20px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.loading-state::before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(88, 86, 214, 0.3);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============ MODAIS ============ */
+.modal-overlay {
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 3, 8, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 999;
+    justify-content: center;
+    align-items: flex-end;
+    transition: opacity 0.28s ease;
+    padding: 0;
+}
+@media (min-width: 640px) {
+    .modal-overlay { align-items: center; padding: 20px; }
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.modal-card {
+    background: linear-gradient(180deg, #0d0d16 0%, #08080f 100%);
+    padding: 26px 22px 22px;
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 440px;
+    border: 1px solid var(--border-strong);
+    border-bottom: none;
+    transform: translateY(30px);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    max-height: 92vh;
+    overflow-y: auto;
+}
+@media (min-width: 640px) {
+    .modal-card {
+        border-radius: 22px;
+        border-bottom: 1px solid var(--border-strong);
+        transform: translateY(20px) scale(0.96);
+    }
+}
+.modal-overlay.active .modal-card { transform: translateY(0) scale(1); }
+
+.modal-card::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 38px;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.12);
+}
+@media (min-width: 640px) { .modal-card::before { display: none; } }
+
+.modal-card h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    margin: 8px 0 20px;
+    color: #fff;
+}
+
+.btn-fechar-modal {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s;
+    padding: 0;
+    font-family: inherit;
+    line-height: 1;
+}
+.btn-fechar-modal:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+form label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    margin-top: 14px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+form label:first-of-type { margin-top: 0; }
+
+form input:not([type="checkbox"]),
+form select {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border-strong);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: all 0.2s;
+}
+form input:focus, form select:focus {
+    border-color: var(--primary);
+    background: rgba(88, 86, 214, 0.05);
+    box-shadow: 0 0 0 3px rgba(88, 86, 214, 0.15);
+}
+form input::placeholder { color: var(--text-dim); }
+
+form button[type="submit"] {
+    width: 100%;
+    padding: 13px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    margin-top: 20px;
+    transition: all 0.2s;
+    box-shadow: 0 10px 22px -10px var(--primary-glow);
+    letter-spacing: 0.2px;
+}
+form button[type="submit"]:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px -10px var(--primary-glow);
+}
+form button[type="submit"]:active { transform: scale(0.98); }
+
+/* Config modal */
+.config-block {
+    margin-top: 18px;
+    background: rgba(255,255,255,0.025);
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+}
+.config-block-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 0 0 12px;
+}
+
+/* ============ SYNC INDICATOR ============ */
+#syncIndicator {
+    display: none;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #c7c8ff;
+    background: rgba(13, 13, 22, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 7px 12px 7px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(88, 86, 214, 0.3);
+    z-index: 1000;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    animation: fadeDown 0.3s ease;
+}
+#syncIndicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 10px var(--primary);
+    animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* ============ FAB ============ */
+.fab-button {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--primary) 0%, #7c7aeb 100%);
+    color: #fff;
+    border: none;
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 1;
+    box-shadow: 0 15px 35px -8px var(--primary-glow), 0 0 0 1px rgba(255,255,255,0.08) inset;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0;
+    padding-bottom: 3px;
+}
+.fab-button:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 20px 42px -8px var(--primary-glow), 0 0 0 1px rgba(255,255,255,0.12) inset;
+}
+.fab-button:active { transform: scale(0.94); }
+
+/* ============ ANIMATIONS ============ */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes itemIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+</style>
 </head>
 <body>
 
-<div id="syncIndicator">⚡ Sincronizando...</div>
+<div id="syncIndicator">Sincronizando</div>
 
 <div class="container">
-    <div class="header-app">
-        <h1>Controle Financeiro</h1>
-    </div>
 
-    <div class="bar-abas">
-        <div>
-            <label style="font-size:12px; color:#94a3b8; margin-right:6px;">Mês / Aba:</label>
+    <!-- HEADER -->
+    <header class="app-header">
+        <div class="brand">
+            <h1 class="brand-title">Controle Financeiro</h1>
+            <span class="brand-subtitle">Personal Finance</span>
+        </div>
+        <button class="icon-btn" onclick="abrirModalConfig()" title="Configurações" aria-label="Configurações">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+        </button>
+    </header>
+
+    <!-- MONTH BAR -->
+    <div class="month-bar">
+        <div class="month-selector">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
             <select id="selectAba" onchange="trocarAba(this.value)"></select>
         </div>
-        <div style="display:flex; gap:5px; align-items: center;">
-            <button class="btn-header btn-novo-item" onclick="abrirModalFormulario()">+ Lançamento</button>
-            <button class="btn-header" onclick="criarNovaAba()">+ Novo Mês</button>
-            <button class="btn-header btn-excluir-aba" onclick="excluirAbaAtual()">🗑️ Excluir Mês</button>
-            <button class="btn-header btn-config" onclick="abrirModalConfig()" title="Configurações">⚙️</button>
+        <div class="month-actions">
+            <button class="btn-mini" onclick="criarNovaAba()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Mês
+            </button>
+            <button class="btn-mini danger" onclick="excluirAbaAtual()" title="Excluir mês atual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                </svg>
+            </button>
         </div>
     </div>
 
-    <div class="painel-resumos">
-        <div class="card-resumo">
-            <h3>Saldo Dia 05</h3>
-            <div class="valor-destaque" id="res05">R$ 0,00</div>
-            <div class="linha-resumo"><span>Renda:</span> <strong id="r05">R$ 0,00</strong></div>
-            <div class="linha-resumo"><span>Despesas:</span> <strong id="d05">R$ 0,00</strong></div>
+    <!-- HERO -->
+    <div class="hero-card">
+        <div class="hero-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Fechamento do mês
         </div>
-        <div class="card-resumo">
-            <h3>Projeção Dia 20</h3>
-            <div class="valor-destaque" id="res20">R$ 0,00</div>
-            <div class="linha-resumo"><span>Renda:</span> <strong id="r20">R$ 0,00</strong></div>
-            <div class="linha-resumo"><span>Despesas:</span> <strong id="d20">R$ 0,00</strong></div>
-        </div>
-        <div class="card-resumo">
-            <h3>Fechamento Mensal</h3>
-            <div class="valor-destaque" id="resTot">R$ 0,00</div>
-            <div class="linha-resumo"><span>Renda Total:</span> <strong id="rTot">R$ 0,00</strong></div>
-            <div class="linha-resumo"><span>Despesas:</span> <strong id="dTot">R$ 0,00</strong></div>
+        <div class="hero-value valor-destaque" id="resTot">R$ 0,00</div>
+        <div class="hero-meta">
+            <div class="hero-meta-item">
+                <div class="hero-meta-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        <polyline points="17 6 23 6 23 12"/>
+                    </svg>
+                    Renda
+                </div>
+                <div class="hero-meta-value up" id="rTot">R$ 0,00</div>
+            </div>
+            <div class="hero-meta-item">
+                <div class="hero-meta-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                        <polyline points="17 18 23 18 23 12"/>
+                    </svg>
+                    Despesas
+                </div>
+                <div class="hero-meta-value" id="dTot">R$ 0,00</div>
+            </div>
         </div>
     </div>
 
-    <div class="card">
-        <h2>Lançamentos</h2>
-        <div id="status" style="text-align:center; color:#94a3b8; padding: 20px;">A carregar dados...</div>
-        <div class="subtitulo">📅 Período do Dia 05</div>
+    <!-- PERIOD CARDS -->
+    <div class="period-grid">
+        <div class="period-card">
+            <div class="period-head">
+                <span class="period-badge"><span class="dot"></span>Dia 05</span>
+            </div>
+            <div class="period-value valor-destaque" id="res05">R$ 0,00</div>
+            <div class="period-lines">
+                <div class="period-line">
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        </svg>
+                        Renda
+                    </span>
+                    <strong class="up" id="r05">R$ 0,00</strong>
+                </div>
+                <div class="period-line">
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                        </svg>
+                        Despesas
+                    </span>
+                    <strong class="down" id="d05">R$ 0,00</strong>
+                </div>
+            </div>
+        </div>
+        <div class="period-card">
+            <div class="period-head">
+                <span class="period-badge"><span class="dot"></span>Dia 20</span>
+            </div>
+            <div class="period-value valor-destaque" id="res20">R$ 0,00</div>
+            <div class="period-lines">
+                <div class="period-line">
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        </svg>
+                        Renda
+                    </span>
+                    <strong class="up" id="r20">R$ 0,00</strong>
+                </div>
+                <div class="period-line">
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                        </svg>
+                        Despesas
+                    </span>
+                    <strong class="down" id="d20">R$ 0,00</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div class="section-head">
+        <h2 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/>
+                <line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/>
+                <line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            Lançamentos
+        </h2>
+        <button class="btn-primary" onclick="abrirModalFormulario()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Novo
+        </button>
+    </div>
+
+    <div id="status" class="loading-state">A carregar dados</div>
+
+    <div class="list-group">
+        <div class="list-header">
+            <span>Dia 05</span>
+            <span class="line"></span>
+            <span class="count" id="count05">0</span>
+        </div>
         <ul id="lista05"></ul>
-        <div class="subtitulo">📅 Período do Dia 20</div>
+    </div>
+
+    <div class="list-group">
+        <div class="list-header">
+            <span>Dia 20</span>
+            <span class="line"></span>
+            <span class="count" id="count20">0</span>
+        </div>
         <ul id="lista20"></ul>
     </div>
+
 </div>
 
+<!-- MODAL FORM -->
 <div id="modalForm" class="modal-overlay" onclick="fecharModalAoClicarFora(event)">
     <div class="modal-card">
-        <button class="btn-fechar-modal" onclick="fecharModalFormulario()">✕</button>
-        <h2 id="modalTitulo" style="margin-top:0; font-size:18px;">Incluir Lançamento</h2>
-        
+        <button class="btn-fechar-modal" onclick="fecharModalFormulario()" aria-label="Fechar">✕</button>
+        <h2 id="modalTitulo">Incluir Lançamento</h2>
+
         <form id="formTransacao" onsubmit="salvarTransacao(event)">
             <input type="hidden" id="editId" value="">
-            <label style="font-size: 11px; color: #94a3b8;">Descrição</label>
+            <label for="descricao">Descrição</label>
             <input type="text" id="descricao" placeholder="Ex: Mercado" required autocomplete="off">
-            <label style="font-size: 11px; color: #94a3b8;">Valor (R$)</label>
+            <label for="valor">Valor (R$)</label>
             <input type="number" step="0.01" id="valor" placeholder="Ex: 150.00" required>
-            <label style="font-size: 11px; color: #94a3b8;">Data</label>
+            <label for="dataPgto">Data</label>
             <input type="text" id="dataPgto" placeholder="Ex: 5 ou 20" required>
-            <label style="font-size: 11px; color: #94a3b8;">Tipo</label>
+            <label for="tipo">Tipo</label>
             <select id="tipo">
                 <option value="entrada">Entrada (Renda)</option>
                 <option value="despesa">Despesa (Gasto)</option>
@@ -270,31 +1168,32 @@
     </div>
 </div>
 
+<!-- MODAL CONFIG -->
 <div id="modalConfig" class="modal-overlay" onclick="fecharModalConfigFora(event)">
     <div class="modal-card">
-        <button class="btn-fechar-modal" onclick="fecharModalConfig()">✕</button>
-        <h2 style="margin-top:0; font-size:18px; color:#fff;">⚙️ Opções do App</h2>
-        
-        <div style="margin-top: 20px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-            <h3 style="font-size: 14px; margin-top: 0; color: #e2e8f0;">CheckBox Opções</h3>
-            <label class="custom-checkbox-container" style="align-items: flex-start; cursor: pointer; justify-content: flex-start;">
+        <button class="btn-fechar-modal" onclick="fecharModalConfig()" aria-label="Fechar">✕</button>
+        <h2>⚙️ Opções do App</h2>
+
+        <div class="config-block">
+            <p class="config-block-title">Cálculo de saldo</p>
+            <label class="custom-checkbox-container" style="width:auto; height:auto; align-items:flex-start; justify-content:flex-start; cursor:pointer;">
                 <input type="checkbox" id="checkDescontoReal" onchange="alternarModoCalculo(this.checked)">
                 <span class="checkmark" style="margin-top: 2px;"></span>
-                <span style="font-size: 13px; color: #cbd5e1; line-height: 1.4; margin-left: 8px;">
-                    <strong style="color: #fff; display: block; margin-bottom: 4px;">Abater apenas despesas pagas</strong>
-                    Se ativado, apenas as despesas marcadas no CheckBox serão descontadas da entrada.
+                <span style="font-size: 13px; color: #cbd5e1; line-height: 1.5; margin-left: 10px;">
+                    <strong style="color: #fff; display: block; margin-bottom: 3px; font-weight: 600;">Abater apenas despesas pagas</strong>
+                    Se ativado, apenas as despesas marcadas no checkbox serão descontadas da entrada.
                 </span>
             </label>
         </div>
     </div>
 </div>
 
-<button class="fab-button" onclick="abrirModalFormulario()">+</button>
+<button class="fab-button" onclick="abrirModalFormulario()" aria-label="Novo lançamento">+</button>
 
 <script>
     const SUPABASE_URL = 'https://uvpwporikumehelsuebg.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cHdwb3Jpa3VtZWhlbHN1ZWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNzgzODgsImV4cCI6MjEwNTc1NDM4OH0.P4vcRUqgQLnq_6fmWYLaizyJ9znY5jUa4flYAVvt_UY';
-    
+
     let supabaseClient = null;
     let cacheGlobalDados = [];
     let abaSelecionada = 'Outubro';
@@ -302,12 +1201,9 @@
     let syncsPendentes = 0;
     let abaterApenasPagos = localStorage.getItem('abaterApenasPagos') === 'true';
 
-    // Modelos Padrão para Novos Meses
     const lancamentosPadrao = [
-        // Dia 05 - Entradas
         { descricao: 'Salario Bruno', valor: 980.00, data_pgto: '5', tipo: 'entrada', pago: false },
         { descricao: 'Salario Isabella', valor: 2000.00, data_pgto: '5', tipo: 'entrada', pago: false },
-        // Dia 05 - Despesas
         { descricao: 'Aluguel', valor: 1160.00, data_pgto: '5', tipo: 'despesa', pago: false },
         { descricao: 'Energia', valor: 140.00, data_pgto: '5', tipo: 'despesa', pago: false },
         { descricao: 'Faculdade - Bruno', valor: 181.27, data_pgto: '5', tipo: 'despesa', pago: false },
@@ -317,10 +1213,7 @@
         { descricao: 'Internet', valor: 79.90, data_pgto: '5', tipo: 'despesa', pago: false },
         { descricao: 'Plano TV', valor: 24.90, data_pgto: '5', tipo: 'despesa', pago: false },
         { descricao: 'Supermercado', valor: 750.00, data_pgto: '5', tipo: 'despesa', pago: false },
-        
-        // Dia 20 - Entradas
         { descricao: 'Salario Bruno', valor: 870.00, data_pgto: '20', tipo: 'entrada', pago: false },
-        // Dia 20 - Despesas
         { descricao: 'Fernanda', valor: 280.00, data_pgto: '20', tipo: 'despesa', pago: false },
         { descricao: 'Supermercado', valor: 750.00, data_pgto: '20', tipo: 'despesa', pago: false }
     ];
@@ -331,7 +1224,8 @@
 
     function gerenciarSyncState(delta) {
         syncsPendentes += delta;
-        document.getElementById('syncIndicator').style.display = syncsPendentes > 0 ? 'block' : 'none';
+        const el = document.getElementById('syncIndicator');
+        el.style.display = syncsPendentes > 0 ? 'flex' : 'none';
     }
 
     async function inicializarApp() {
@@ -343,7 +1237,7 @@
             return;
         }
 
-        document.getElementById('status').style.display = 'block';
+        document.getElementById('status').style.display = 'flex';
         await carregarDadosSilencioso();
         document.getElementById('status').style.display = 'none';
     }
@@ -430,7 +1324,7 @@
 
     function abrirModalFormulario() {
         document.getElementById('modalForm').classList.add('active');
-        setTimeout(() => document.getElementById('descricao').focus(), 150);
+        setTimeout(() => document.getElementById('descricao').focus(), 200);
     }
 
     function fecharModalFormulario() {
@@ -448,16 +1342,15 @@
         const nomeAba = prompt('Digite o nome do novo mês (ex: Dezembro):');
         if (!nomeAba || !nomeAba.trim()) return;
         const nomeLimpo = nomeAba.trim();
-        if (listaAbasGlobal.map(a => a.toLowerCase()).includes(nomeLimpo.toLowerCase())) { 
-            alert('Este mês já existe!'); 
-            return; 
+        if (listaAbasGlobal.map(a => a.toLowerCase()).includes(nomeLimpo.toLowerCase())) {
+            alert('Este mês já existe!');
+            return;
         }
 
         listaAbasGlobal.push(nomeLimpo);
         abaSelecionada = nomeLimpo;
         atualizarSelectAbas();
 
-        // Insere lançamentos padrão para o novo mês no Supabase
         const novosLancamentos = lancamentosPadrao.map(item => ({
             ...item,
             aba: nomeLimpo
@@ -465,13 +1358,13 @@
 
         gerenciarSyncState(1);
         const { data, error } = await supabaseClient.from('lancamentos').insert(novosLancamentos).select();
-        
+
         if (!error && data) {
             cacheGlobalDados.push(...data);
         } else {
             await carregarDadosSilencioso();
         }
-        
+
         gerenciarSyncState(-1);
         filtrarErenderizar();
     }
@@ -482,12 +1375,12 @@
 
         cacheGlobalDados = cacheGlobalDados.filter(i => String(i.aba).trim().toLowerCase() !== abaParaExcluir.toLowerCase());
         listaAbasGlobal = listaAbasGlobal.filter(a => a.toLowerCase() !== abaParaExcluir.toLowerCase());
-        
+
         if (listaAbasGlobal.length === 0) {
             listaAbasGlobal = ['Outubro'];
         }
         abaSelecionada = listaAbasGlobal[0];
-        
+
         atualizarSelectAbas();
         filtrarErenderizar();
 
@@ -568,48 +1461,64 @@
         ul05.innerHTML = '';
         ul20.innerHTML = '';
 
-        // ORDENAÇÃO: 1º Entradas primeiro | 2º Maior valor para o menor valor
         const dadosOrdenados = [...dadosLocais].sort((a, b) => {
             const ehEntradaA = a.tipo === 'entrada' ? 1 : 0;
             const ehEntradaB = b.tipo === 'entrada' ? 1 : 0;
-
-            if (ehEntradaA !== ehEntradaB) {
-                return ehEntradaB - ehEntradaA; // Entradas sempre no topo
-            }
-            return (parseFloat(b.valor) || 0) - (parseFloat(a.valor) || 0); // Ordem decrescente de valor
+            if (ehEntradaA !== ehEntradaB) return ehEntradaB - ehEntradaA;
+            return (parseFloat(b.valor) || 0) - (parseFloat(a.valor) || 0);
         });
 
-        dadosOrdenados.forEach(item => {
+        let count05 = 0;
+        let count20 = 0;
+
+        dadosOrdenados.forEach((item, idx) => {
             const val = parseFloat(item.valor) || 0;
             const dataTexto = String(item.data_pgto || '');
             const ehDia20 = dataTexto.includes('20');
             const ehDespesa = item.tipo !== 'entrada';
             const taPago = item.pago === true;
 
-            const checkboxHtml = ehDespesa 
+            const checkboxHtml = ehDespesa
                 ? `<label class="custom-checkbox-container" title="Marcar como pago">
-                    <input type="checkbox" ${taPago ? 'checked' : ''} onchange="alternarStatusPagamento('${item.id}', this.checked)">
-                    <span class="checkmark"></span>
+                       <input type="checkbox" ${taPago ? 'checked' : ''} onchange="alternarStatusPagamento('${item.id}', this.checked)">
+                       <span class="checkmark"></span>
                    </label>`
-                : `<div style="width: 32px;"></div>`;
+                : `<div style="width: 22px; flex-shrink: 0;"></div>`;
 
             const li = document.createElement('li');
-            li.className = `${!ehDespesa ? 'is-entrada' : 'is-despesa'} ${taPago ? 'is-pago' : ''}`;
-            
+            li.className = `item ${!ehDespesa ? 'is-entrada' : 'is-despesa'} ${taPago ? 'is-pago' : ''}`;
+            li.style.animationDelay = `${Math.min(idx * 0.02, 0.4)}s`;
+
             li.innerHTML = `
-                <div style="display:flex; align-items:center; flex:1; min-width: 0;">
-                    ${checkboxHtml}
-                    <div style="padding-right: 6px;">
-                        <strong style="font-size:14px; font-weight:600; word-break: break-word; text-decoration: ${taPago ? 'line-through' : 'none'}; color: ${taPago ? '#64748b' : '#fff'}">${item.descricao}</strong><br>
-                        <span style="font-size:11.5px; color:var(--text-muted);">Data: ${dataTexto}</span>
+                ${checkboxHtml}
+                <div class="item-info">
+                    <div class="item-desc">${item.descricao}</div>
+                    <div class="item-meta">
+                        <span class="item-date">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            Dia ${dataTexto}
+                        </span>
+                        <span class="item-tag ${ehDespesa ? 'tag-despesa' : 'tag-entrada'}">${ehDespesa ? 'Despesa' : 'Entrada'}</span>
                     </div>
                 </div>
-                <div style="display:flex; align-items:center; flex-shrink: 0;">
-                    <span class="valor-item" style="color:${!ehDespesa ? 'var(--success)' : (taPago ? '#64748b' : 'var(--danger)')}">
-                        ${!ehDespesa ? '+ ' : '- '}${formatarMoeda(val)}
-                    </span>
-                    <button class="btn-acao" onclick="prepararEdicao('${item.id}')" title="Editar">✏️</button>
-                    <button class="btn-acao" onclick="excluirTransacao('${item.id}')" title="Excluir" style="color:#ef4444;">🗑️</button>
+                <div class="item-value ${!ehDespesa ? 'up' : 'down'}">
+                    ${!ehDespesa ? '+' : '−'} ${formatarMoeda(val)}
+                </div>
+                <div class="item-actions">
+                    <button class="btn-icon" onclick="prepararEdicao('${item.id}')" title="Editar" aria-label="Editar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"/>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="excluirTransacao('${item.id}')" title="Excluir" aria-label="Excluir">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                        </svg>
+                    </button>
                 </div>
             `;
 
@@ -621,38 +1530,51 @@
             if (ehDia20) {
                 if (!ehDespesa) r20 += val; else d20 += valorDespesaCalculado;
                 ul20.appendChild(li);
+                count20++;
             } else {
                 if (!ehDespesa) r05 += val; else d05 += valorDespesaCalculado;
                 ul05.appendChild(li);
+                count05++;
             }
         });
 
+        // Empty states
+        if (count05 === 0) {
+            ul05.innerHTML = `<div class="empty-state">Nenhum lançamento neste período</div>`;
+        }
+        if (count20 === 0) {
+            ul20.innerHTML = `<div class="empty-state">Nenhum lançamento neste período</div>`;
+        }
+        document.getElementById('count05').innerText = count05;
+        document.getElementById('count20').innerText = count20;
+
+        // Resumo dia 05
         document.getElementById('r05').innerText = formatarMoeda(r05);
         document.getElementById('d05').innerText = formatarMoeda(d05);
-        
         const saldo05 = r05 - d05;
         const elRes05 = document.getElementById('res05');
         elRes05.innerText = formatarMoeda(saldo05);
-        elRes05.className = `valor-destaque ${saldo05 < 0 ? 'negativo' : ''}`;
+        elRes05.classList.toggle('negativo', saldo05 < 0);
 
+        // Resumo dia 20
         document.getElementById('r20').innerText = formatarMoeda(r20);
         document.getElementById('d20').innerText = formatarMoeda(d20);
-        
         const saldo20 = r20 - d20;
         const elRes20 = document.getElementById('res20');
         elRes20.innerText = formatarMoeda(saldo20);
-        elRes20.className = `valor-destaque ${saldo20 < 0 ? 'negativo' : ''}`;
+        elRes20.classList.toggle('negativo', saldo20 < 0);
 
+        // Fechamento
         const totalRenda = r05 + r20;
         const totalDespesas = d05 + d20;
         const totalSobra = totalRenda - totalDespesas;
 
         document.getElementById('rTot').innerText = formatarMoeda(totalRenda);
         document.getElementById('dTot').innerText = formatarMoeda(totalDespesas);
-        
+
         const elResTot = document.getElementById('resTot');
         elResTot.innerText = formatarMoeda(totalSobra);
-        elResTot.className = `valor-destaque ${totalSobra < 0 ? 'negativo' : ''}`;
+        elResTot.classList.toggle('negativo', totalSobra < 0);
     }
 
     window.addEventListener('DOMContentLoaded', () => {
