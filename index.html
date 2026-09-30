@@ -1504,7 +1504,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
             <ul id="lista20"></ul>
         </div>
 
-        <!-- NOVA SEÇÃO: FATURA DO CARTÃO -->
+        <!-- SEÇÃO: FATURA DO CARTÃO -->
         <div class="list-group cartao-group" id="cartaoGroup" style="display: none;">
             <div class="list-header">
                 <span>💳 Fatura do Cartão</span>
@@ -1621,7 +1621,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
                 <option value="despesa">Despesa (Gasto)</option>
             </select>
 
-            <!-- NOVO: SEÇÃO CARTÃO DE CRÉDITO -->
+            <!-- SEÇÃO CARTÃO DE CRÉDITO -->
             <div id="cartaoSection" style="margin-top: 14px; display: none;">
                 <label class="custom-checkbox-container" style="width:auto; height:auto; align-items:center; justify-content:flex-start; cursor:pointer; margin-top: 0;">
                     <input type="checkbox" id="checkCartao" onchange="toggleCartaoFields()">
@@ -1716,6 +1716,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
     let syncsPendentes = 0;
     let abaterApenasPagos = localStorage.getItem('abaterApenasPagos') === 'true';
     let telaAtual = 'lancamentos';
+    let colunaCartaoExiste = true; // detectado automaticamente
 
     let chartBarras = null;
     let chartLinha = null;
@@ -1908,12 +1909,16 @@ form button[type="submit"]:active { transform: scale(0.98); }
             const { data, error } = await supabaseClient.from('lancamentos').select('*');
             if (error) {
                 console.error("Erro ao buscar dados:", error);
-                document.getElementById('status').innerText = "Erro ao carregar dados do banco. A coluna 'cartao' foi criada?";
+                document.getElementById('status').innerText = "Erro ao carregar dados do banco.";
                 return;
             }
 
             if (data && Array.isArray(data)) {
                 cacheGlobalDados = data;
+                // Detecta se a coluna 'cartao' existe pelo retorno
+                if (data.length > 0) {
+                    colunaCartaoExiste = 'cartao' in data[0];
+                }
                 const abasUnicas = [...new Set(data.map(item => String(item.aba).trim()))].filter(a => a.length > 0);
                 if (abasUnicas.length > 0) {
                     listaAbasGlobal = [...new Set(['Outubro', 'Novembro', ...abasUnicas])];
@@ -2063,7 +2068,8 @@ form button[type="submit"]:active { transform: scale(0.98); }
         abaSelecionada = nomeLimpo;
         atualizarSelectAbas();
 
-        const novosLancamentos = lancamentosPadrao.map(item => ({ ...item, aba: nomeLimpo, cartao: null }));
+        // Não envia 'cartao' — deixa o banco usar NULL por padrão
+        const novosLancamentos = lancamentosPadrao.map(item => ({ ...item, aba: nomeLimpo }));
 
         gerenciarSyncState(1);
         const { data, error } = await supabaseClient.from('lancamentos').insert(novosLancamentos).select();
@@ -2071,7 +2077,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         if (!error && data) {
             cacheGlobalDados.push(...data);
         } else {
-            console.error(error);
+            console.error("Erro ao criar mês:", error);
             await carregarDadosSilencioso();
         }
         gerenciarSyncState(-1);
@@ -2119,32 +2125,57 @@ form button[type="submit"]:active { transform: scale(0.98); }
         fecharModalFormulario();
         gerenciarSyncState(1);
 
-        if (idEdit) {
-            const index = cacheGlobalDados.findIndex(i => String(i.id) === String(idEdit));
-            if (index !== -1) {
-                cacheGlobalDados[index] = { ...cacheGlobalDados[index], descricao, valor, data_pgto: dataPgto, tipo, cartao };
-            }
-            filtrarErenderizar();
+        try {
+            if (idEdit) {
+                const index = cacheGlobalDados.findIndex(i => String(i.id) === String(idEdit));
+                const itemAntigo = index !== -1 ? cacheGlobalDados[index] : null;
 
-            const { error } = await supabaseClient.from('lancamentos').update({
-                descricao, valor, data_pgto: dataPgto, tipo, cartao
-            }).eq('id', idEdit);
-            if (error) console.error(error);
-        } else {
-            const { data, error } = await supabaseClient.from('lancamentos').insert([{
-                aba: abaSelecionada,
-                descricao, valor, data_pgto: dataPgto, tipo, cartao, pago: false
-            }]).select();
+                const payload = { descricao, valor, data_pgto: dataPgto, tipo };
+                // Só envia 'cartao' se: (a) tem valor agora, ou (b) antes tinha valor (pra poder limpar)
+                if (cartao || (itemAntigo && itemAntigo.cartao)) {
+                    payload.cartao = cartao;
+                }
 
-            if (!error && data && data.length > 0) {
-                cacheGlobalDados.push(data[0]);
+                if (index !== -1) {
+                    cacheGlobalDados[index] = { ...cacheGlobalDados[index], ...payload };
+                }
+                filtrarErenderizar();
+
+                const { error } = await supabaseClient.from('lancamentos').update(payload).eq('id', idEdit);
+                if (error) {
+                    console.error('Erro ao atualizar:', error);
+                    alert('Erro ao atualizar: ' + (error.message || 'Verifique se a coluna "cartao" existe no Supabase.'));
+                    await carregarDadosSilencioso();
+                }
             } else {
-                console.error(error);
-                await carregarDadosSilencioso();
+                const payload = {
+                    aba: abaSelecionada,
+                    descricao,
+                    valor,
+                    data_pgto: dataPgto,
+                    tipo,
+                    pago: false
+                };
+                // Só inclui o campo cartao se realmente tiver valor
+                if (cartao) payload.cartao = cartao;
+
+                const { data, error } = await supabaseClient.from('lancamentos').insert([payload]).select();
+
+                if (error) {
+                    console.error('Erro ao inserir:', error);
+                    alert('Erro ao salvar lançamento:\n\n' + (error.message || 'Verifique se a coluna "cartao" existe no Supabase.') + '\n\nSe necessário, rode no SQL Editor:\nALTER TABLE lancamentos ADD COLUMN cartao text;');
+                    await carregarDadosSilencioso();
+                } else if (data && data.length > 0) {
+                    cacheGlobalDados.push(data[0]);
+                }
+                filtrarErenderizar();
             }
-            filtrarErenderizar();
+        } catch (err) {
+            console.error('Erro inesperado:', err);
+            alert('Erro inesperado ao salvar. Veja o console (F12).');
+        } finally {
+            gerenciarSyncState(-1);
         }
-        gerenciarSyncState(-1);
     }
 
     function prepararEdicao(id) {
