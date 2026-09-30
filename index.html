@@ -714,6 +714,132 @@ li.item:hover .item-actions { opacity: 1; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ============ CARTÃO DE CRÉDITO ============ */
+.cartao-group { margin-bottom: 20px; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.4s; }
+
+.cartao-bill-info {
+    font-size: 11px;
+    color: #ffd4b3;
+    padding: 9px 12px;
+    background: rgba(249, 115, 22, 0.08);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    line-height: 1.4;
+}
+.cartao-bill-info svg { width: 13px; height: 13px; color: var(--primary); flex-shrink: 0; }
+
+.cartao-card-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--primary);
+    animation: itemIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    position: relative;
+    overflow: hidden;
+}
+.cartao-card-block:hover {
+    background: var(--surface-2);
+    border-color: var(--border-strong);
+}
+
+.cartao-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+    gap: 8px;
+}
+
+.cartao-card-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffd4b3;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    letter-spacing: -0.2px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cartao-card-name svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+.cartao-card-total {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f87171;
+    letter-spacing: -0.3px;
+    flex-shrink: 0;
+}
+
+.cartao-item-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cartao-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 12.5px;
+    gap: 8px;
+}
+
+.cartao-item-desc {
+    color: var(--text-muted);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cartao-item-desc::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--primary);
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.cartao-item-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: #cbd5e1;
+    font-size: 12.5px;
+    flex-shrink: 0;
+}
+
+.cartao-actions {
+    display: flex;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    margin-left: 4px;
+}
+.cartao-item:hover .cartao-actions { opacity: 1; }
+@media (hover: none) { .cartao-actions { opacity: 0.6; } }
+
 /* ============ DASHBOARD ============ */
 .dash-title {
     font-family: 'Space Grotesk', sans-serif;
@@ -1020,6 +1146,7 @@ form input:focus, form select:focus {
     box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 form input::placeholder { color: var(--text-dim); }
+form select option { background: #0b0b12; color: #fff; }
 
 form button[type="submit"] {
     width: 100%;
@@ -1377,6 +1504,16 @@ form button[type="submit"]:active { transform: scale(0.98); }
             <ul id="lista20"></ul>
         </div>
 
+        <!-- NOVA SEÇÃO: FATURA DO CARTÃO -->
+        <div class="list-group cartao-group" id="cartaoGroup" style="display: none;">
+            <div class="list-header">
+                <span>💳 Fatura do Cartão</span>
+                <span class="line"></span>
+                <span class="count" id="countCartao">0</span>
+            </div>
+            <div id="cartaoContent"></div>
+        </div>
+
     </div>
 
     <!-- ======================= TELA DASHBOARD ======================= -->
@@ -1479,10 +1616,34 @@ form button[type="submit"]:active { transform: scale(0.98); }
             <label for="dataPgto">Data</label>
             <input type="text" id="dataPgto" placeholder="Ex: 5 ou 20" required>
             <label for="tipo">Tipo</label>
-            <select id="tipo">
+            <select id="tipo" onchange="toggleCartaoOption()">
                 <option value="entrada">Entrada (Renda)</option>
                 <option value="despesa">Despesa (Gasto)</option>
             </select>
+
+            <!-- NOVO: SEÇÃO CARTÃO DE CRÉDITO -->
+            <div id="cartaoSection" style="margin-top: 14px; display: none;">
+                <label class="custom-checkbox-container" style="width:auto; height:auto; align-items:center; justify-content:flex-start; cursor:pointer; margin-top: 0;">
+                    <input type="checkbox" id="checkCartao" onchange="toggleCartaoFields()">
+                    <span class="checkmark"></span>
+                    <span style="font-size: 13px; color: #cbd5e1; margin-left: 10px; font-weight: 600;">Compra no Cartão de Crédito</span>
+                </label>
+                <div id="cartaoFields" style="display: none; margin-top: 12px;">
+                    <label for="selectCartao" style="margin-top: 0;">Cartão</label>
+                    <select id="selectCartao"></select>
+                    <button type="button" class="btn-mini" onclick="criarNovoCartao()" style="margin-top: 10px; width: 100%; justify-content: center; padding: 10px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Adicionar novo cartão
+                    </button>
+                    <p style="font-size: 11px; color: var(--text-dim); margin: 10px 0 0; line-height: 1.5;">
+                        💡 Esta despesa será automaticamente lançada na <strong style="color: #ffd4b3;">fatura do próximo mês</strong>.
+                    </p>
+                </div>
+            </div>
+
             <button type="submit" id="btnSalvar">Salvar</button>
         </form>
     </div>
@@ -1504,6 +1665,18 @@ form button[type="submit"]:active { transform: scale(0.98); }
                     Se ativado, apenas as despesas marcadas no checkbox serão descontadas da entrada.
                 </span>
             </label>
+        </div>
+
+        <div class="config-block">
+            <p class="config-block-title">Cartões de crédito</p>
+            <div id="listaCartoesConfig" style="display: flex; flex-direction: column; gap: 6px;"></div>
+            <button type="button" class="btn-mini" onclick="criarNovoCartao()" style="margin-top: 10px; width: 100%; justify-content: center; padding: 10px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Adicionar cartão
+            </button>
         </div>
     </div>
 </div>
@@ -1547,6 +1720,8 @@ form button[type="submit"]:active { transform: scale(0.98); }
     let chartBarras = null;
     let chartLinha = null;
 
+    const ORDEM_MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
     const lancamentosPadrao = [
         { descricao: 'Salario Bruno', valor: 980.00, data_pgto: '5', tipo: 'entrada', pago: false },
         { descricao: 'Salario Isabella', valor: 2000.00, data_pgto: '5', tipo: 'entrada', pago: false },
@@ -1570,6 +1745,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         'outubro': 10, 'novembro': 11, 'dezembro': 12
     };
 
+    /* ============ HELPERS ============ */
     function formatarMoeda(valor) {
         return (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
@@ -1581,6 +1757,15 @@ form button[type="submit"]:active { transform: scale(0.98); }
         return 'R$ ' + valor.toFixed(0);
     }
 
+    function escapeHtml(str) {
+        return String(str == null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     function ordenarMeses(arr) {
         return [...arr].sort((a, b) => {
             const ma = MESES_ORDEM[String(a).toLowerCase().trim()] || 99;
@@ -1589,12 +1774,121 @@ form button[type="submit"]:active { transform: scale(0.98); }
         });
     }
 
+    function mesAnterior(nomeMes) {
+        const alvo = String(nomeMes || '').trim().toLowerCase();
+        const idx = ORDEM_MESES.findIndex(m => m.toLowerCase() === alvo);
+        if (idx <= 0) return null;
+        return ORDEM_MESES[idx - 1];
+    }
+
+    function proximoMes(nomeMes) {
+        const alvo = String(nomeMes || '').trim().toLowerCase();
+        const idx = ORDEM_MESES.findIndex(m => m.toLowerCase() === alvo);
+        if (idx < 0 || idx >= ORDEM_MESES.length - 1) return null;
+        return ORDEM_MESES[idx + 1];
+    }
+
     function gerenciarSyncState(delta) {
         syncsPendentes += delta;
         const el = document.getElementById('syncIndicator');
         el.style.display = syncsPendentes > 0 ? 'flex' : 'none';
     }
 
+    /* ============ CARTÕES ============ */
+    function obterCartoesConhecidos() {
+        const dosDados = cacheGlobalDados.map(t => t.cartao).filter(Boolean).map(String);
+        let doStorage = [];
+        try { doStorage = JSON.parse(localStorage.getItem('listaCartoes') || '[]'); } catch(e) { doStorage = []; }
+        return [...new Set([...doStorage, ...dosDados])];
+    }
+
+    function salvarCartaoStorage(nome) {
+        let lista = [];
+        try { lista = JSON.parse(localStorage.getItem('listaCartoes') || '[]'); } catch(e) { lista = []; }
+        if (!lista.includes(nome)) {
+            lista.push(nome);
+            localStorage.setItem('listaCartoes', JSON.stringify(lista));
+        }
+    }
+
+    function removerCartaoStorage(nome) {
+        let lista = [];
+        try { lista = JSON.parse(localStorage.getItem('listaCartoes') || '[]'); } catch(e) { lista = []; }
+        lista = lista.filter(c => c !== nome);
+        localStorage.setItem('listaCartoes', JSON.stringify(lista));
+    }
+
+    function atualizarSelectCartoes(valorSelecionado) {
+        const select = document.getElementById('selectCartao');
+        if (!select) return;
+        const cartoes = obterCartoesConhecidos();
+        select.innerHTML = '';
+        if (cartoes.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '— Nenhum cartão cadastrado —';
+            select.appendChild(opt);
+        } else {
+            cartoes.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                if (valorSelecionado && valorSelecionado === c) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+    }
+
+    function criarNovoCartao() {
+        const nome = prompt('Nome do novo cartão (ex: Cartão Nubank, Cartão Inter):');
+        if (!nome || !nome.trim()) return;
+        const nomeLimpo = nome.trim();
+        const existentes = obterCartoesConhecidos();
+        if (existentes.map(c => c.toLowerCase()).includes(nomeLimpo.toLowerCase())) {
+            alert('Este cartão já existe!');
+            return;
+        }
+        salvarCartaoStorage(nomeLimpo);
+        atualizarSelectCartoes(nomeLimpo);
+        const sel = document.getElementById('selectCartao');
+        if (sel) sel.value = nomeLimpo;
+        renderizarCartoesConfig();
+    }
+
+    function renderizarCartoesConfig() {
+        const container = document.getElementById('listaCartoesConfig');
+        if (!container) return;
+        const cartoes = obterCartoesConhecidos();
+        if (cartoes.length === 0) {
+            container.innerHTML = `<div style="font-size: 12px; color: var(--text-dim); font-style: italic;">Nenhum cartão cadastrado</div>`;
+            return;
+        }
+        container.innerHTML = cartoes.map(c => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px;">
+                <span style="font-size: 13px; color: #cbd5e1; display: flex; align-items: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--primary);">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    ${escapeHtml(c)}
+                </span>
+                <button class="btn-icon danger" onclick="excluirCartaoConfig('${escapeHtml(c).replace(/'/g, "\\'")}')" title="Remover do cadastro">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    function excluirCartaoConfig(nome) {
+        if (!confirm(`Remover o cartão "${nome}" do cadastro? As compras existentes não serão apagadas.`)) return;
+        removerCartaoStorage(nome);
+        renderizarCartoesConfig();
+        atualizarSelectCartoes();
+    }
+
+    /* ============ INIT ============ */
     async function inicializarApp() {
         if (window.supabase && window.supabase.createClient) {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1614,7 +1908,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
             const { data, error } = await supabaseClient.from('lancamentos').select('*');
             if (error) {
                 console.error("Erro ao buscar dados:", error);
-                document.getElementById('status').innerText = "Erro ao carregar dados do banco.";
+                document.getElementById('status').innerText = "Erro ao carregar dados do banco. A coluna 'cartao' foi criada?";
                 return;
             }
 
@@ -1637,8 +1931,18 @@ form button[type="submit"]:active { transform: scale(0.98); }
     }
 
     function filtrarErenderizar() {
-        const dadosLocais = cacheGlobalDados.filter(item => String(item.aba).trim().toLowerCase() === String(abaSelecionada).trim().toLowerCase());
-        renderizarTela(dadosLocais);
+        const norm = s => String(s || '').trim().toLowerCase();
+        const alvo = norm(abaSelecionada);
+
+        const dadosMes = cacheGlobalDados.filter(item => norm(item.aba) === alvo);
+
+        // Fatura do cartão = compras no crédito do mês ANTERIOR
+        const mesAnt = mesAnterior(abaSelecionada);
+        const dadosFatura = mesAnt
+            ? cacheGlobalDados.filter(item => norm(item.aba) === norm(mesAnt) && item.cartao)
+            : [];
+
+        renderizarTela(dadosMes, dadosFatura);
         if (telaAtual === 'dashboard') {
             renderizarDashboard();
         }
@@ -1671,7 +1975,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
         document.getElementById('brandSub').innerText = tela === 'dashboard' ? 'Dashboard' : 'Personal Finance';
 
         if (tela === 'dashboard') {
-            // pequeno delay para garantir dimensões do container
             setTimeout(renderizarDashboard, 60);
         }
     }
@@ -1679,6 +1982,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
     /* ============ CONFIG ============ */
     function abrirModalConfig() {
         document.getElementById('checkDescontoReal').checked = abaterApenasPagos;
+        renderizarCartoesConfig();
         document.getElementById('modalConfig').classList.add('active');
     }
     function fecharModalConfig() {
@@ -1709,17 +2013,43 @@ form button[type="submit"]:active { transform: scale(0.98); }
     function abrirModalFormulario() {
         document.getElementById('modalForm').classList.add('active');
         setTimeout(() => document.getElementById('descricao').focus(), 200);
+        toggleCartaoOption();
+        atualizarSelectCartoes();
     }
     function fecharModalFormulario() {
         document.getElementById('modalForm').classList.remove('active');
         document.getElementById('editId').value = '';
         document.getElementById('formTransacao').reset();
         document.getElementById('modalTitulo').innerText = 'Incluir Lançamento';
+        document.getElementById('cartaoSection').style.display = 'none';
+        document.getElementById('cartaoFields').style.display = 'none';
+        document.getElementById('checkCartao').checked = false;
     }
     function fecharModalAoClicarFora(e) {
         if (e.target.id === 'modalForm') fecharModalFormulario();
     }
 
+    /* ============ TOGGLE CARTÃO ============ */
+    function toggleCartaoOption() {
+        const tipo = document.getElementById('tipo').value;
+        const section = document.getElementById('cartaoSection');
+        if (tipo === 'despesa') {
+            section.style.display = 'block';
+            atualizarSelectCartoes();
+        } else {
+            section.style.display = 'none';
+            document.getElementById('checkCartao').checked = false;
+            document.getElementById('cartaoFields').style.display = 'none';
+        }
+    }
+
+    function toggleCartaoFields() {
+        const checked = document.getElementById('checkCartao').checked;
+        document.getElementById('cartaoFields').style.display = checked ? 'block' : 'none';
+        if (checked) atualizarSelectCartoes();
+    }
+
+    /* ============ ABAS ============ */
     async function criarNovaAba() {
         const nomeAba = prompt('Digite o nome do novo mês (ex: Dezembro):');
         if (!nomeAba || !nomeAba.trim()) return;
@@ -1733,7 +2063,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         abaSelecionada = nomeLimpo;
         atualizarSelectAbas();
 
-        const novosLancamentos = lancamentosPadrao.map(item => ({ ...item, aba: nomeLimpo }));
+        const novosLancamentos = lancamentosPadrao.map(item => ({ ...item, aba: nomeLimpo, cartao: null }));
 
         gerenciarSyncState(1);
         const { data, error } = await supabaseClient.from('lancamentos').insert(novosLancamentos).select();
@@ -1741,6 +2071,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         if (!error && data) {
             cacheGlobalDados.push(...data);
         } else {
+            console.error(error);
             await carregarDadosSilencioso();
         }
         gerenciarSyncState(-1);
@@ -1765,6 +2096,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         gerenciarSyncState(-1);
     }
 
+    /* ============ SALVAR ============ */
     async function salvarTransacao(e) {
         e.preventDefault();
         const idEdit = document.getElementById('editId').value;
@@ -1773,28 +2105,41 @@ form button[type="submit"]:active { transform: scale(0.98); }
         const dataPgto = document.getElementById('dataPgto').value;
         const tipo = document.getElementById('tipo').value;
 
+        const isCartao = tipo === 'despesa' && document.getElementById('checkCartao').checked;
+        let cartao = null;
+        if (isCartao) {
+            cartao = document.getElementById('selectCartao').value;
+            if (!cartao) {
+                alert('Selecione ou crie um cartão de crédito.');
+                return;
+            }
+            salvarCartaoStorage(cartao);
+        }
+
         fecharModalFormulario();
         gerenciarSyncState(1);
 
         if (idEdit) {
             const index = cacheGlobalDados.findIndex(i => String(i.id) === String(idEdit));
             if (index !== -1) {
-                cacheGlobalDados[index] = { ...cacheGlobalDados[index], descricao, valor, data_pgto: dataPgto, tipo };
+                cacheGlobalDados[index] = { ...cacheGlobalDados[index], descricao, valor, data_pgto: dataPgto, tipo, cartao };
             }
             filtrarErenderizar();
 
-            await supabaseClient.from('lancamentos').update({
-                descricao, valor, data_pgto: dataPgto, tipo
+            const { error } = await supabaseClient.from('lancamentos').update({
+                descricao, valor, data_pgto: dataPgto, tipo, cartao
             }).eq('id', idEdit);
+            if (error) console.error(error);
         } else {
             const { data, error } = await supabaseClient.from('lancamentos').insert([{
                 aba: abaSelecionada,
-                descricao, valor, data_pgto: dataPgto, tipo, pago: false
+                descricao, valor, data_pgto: dataPgto, tipo, cartao, pago: false
             }]).select();
 
             if (!error && data && data.length > 0) {
                 cacheGlobalDados.push(data[0]);
             } else {
+                console.error(error);
                 await carregarDadosSilencioso();
             }
             filtrarErenderizar();
@@ -1810,6 +2155,23 @@ form button[type="submit"]:active { transform: scale(0.98); }
         document.getElementById('valor').value = item.valor;
         document.getElementById('dataPgto').value = item.data_pgto;
         document.getElementById('tipo').value = item.tipo;
+
+        toggleCartaoOption();
+        if (item.cartao) {
+            // Garante que o cartão existe no select
+            const cartoes = obterCartoesConhecidos();
+            if (!cartoes.includes(item.cartao)) {
+                salvarCartaoStorage(item.cartao);
+            }
+            atualizarSelectCartoes(item.cartao);
+            document.getElementById('checkCartao').checked = true;
+            document.getElementById('cartaoFields').style.display = 'block';
+            document.getElementById('selectCartao').value = item.cartao;
+        } else {
+            document.getElementById('checkCartao').checked = false;
+            document.getElementById('cartaoFields').style.display = 'none';
+        }
+
         document.getElementById('modalTitulo').innerText = 'Editar Lançamento';
         abrirModalFormulario();
     }
@@ -1825,14 +2187,17 @@ form button[type="submit"]:active { transform: scale(0.98); }
     }
 
     /* ============ RENDER LANÇAMENTOS ============ */
-    function renderizarTela(dadosLocais) {
+    function renderizarTela(dadosLocais, dadosFatura) {
+        // Remove compras de cartão das listas regulares (elas vão para a fatura do próximo mês)
+        const regular = dadosLocais.filter(d => !d.cartao);
+
         let r05 = 0, d05 = 0, r20 = 0, d20 = 0;
         const ul05 = document.getElementById('lista05');
         const ul20 = document.getElementById('lista20');
         ul05.innerHTML = '';
         ul20.innerHTML = '';
 
-        const dadosOrdenados = [...dadosLocais].sort((a, b) => {
+        const dadosOrdenados = [...regular].sort((a, b) => {
             const ehEntradaA = a.tipo === 'entrada' ? 1 : 0;
             const ehEntradaB = b.tipo === 'entrada' ? 1 : 0;
             if (ehEntradaA !== ehEntradaB) return ehEntradaB - ehEntradaA;
@@ -1862,13 +2227,13 @@ form button[type="submit"]:active { transform: scale(0.98); }
             li.innerHTML = `
                 ${checkboxHtml}
                 <div class="item-info">
-                    <div class="item-desc">${item.descricao}</div>
+                    <div class="item-desc">${escapeHtml(item.descricao)}</div>
                     <div class="item-meta">
                         <span class="item-date">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            Dia ${dataTexto}
+                            Dia ${escapeHtml(dataTexto)}
                         </span>
                         <span class="item-tag ${ehDespesa ? 'tag-despesa' : 'tag-entrada'}">${ehDespesa ? 'Despesa' : 'Entrada'}</span>
                     </div>
@@ -1925,8 +2290,11 @@ form button[type="submit"]:active { transform: scale(0.98); }
         elRes20.innerText = formatarMoeda(saldo20);
         elRes20.classList.toggle('negativo', saldo20 < 0);
 
+        // Renderiza fatura do cartão
+        const totalCartao = renderizarFatura(dadosFatura || []);
+
         const totalRenda = r05 + r20;
-        const totalDespesas = d05 + d20;
+        const totalDespesas = d05 + d20 + totalCartao;
         const totalSobra = totalRenda - totalDespesas;
 
         document.getElementById('rTot').innerText = formatarMoeda(totalRenda);
@@ -1936,15 +2304,117 @@ form button[type="submit"]:active { transform: scale(0.98); }
         elResTot.classList.toggle('negativo', totalSobra < 0);
     }
 
+    function renderizarFatura(dados) {
+        const group = document.getElementById('cartaoGroup');
+        const content = document.getElementById('cartaoContent');
+        const countEl = document.getElementById('countCartao');
+
+        if (!dados || dados.length === 0) {
+            group.style.display = 'none';
+            content.innerHTML = '';
+            if (countEl) countEl.textContent = '0';
+            return 0;
+        }
+
+        group.style.display = 'block';
+
+        // Agrupa por cartão
+        const porCartao = {};
+        dados.forEach(d => {
+            const c = d.cartao || 'Sem nome';
+            if (!porCartao[c]) porCartao[c] = [];
+            porCartao[c].push(d);
+        });
+
+        const cartoes = Object.keys(porCartao).sort((a, b) => a.localeCompare(b));
+
+        let html = '';
+        let totalGeral = 0;
+        const mesAnt = mesAnterior(abaSelecionada);
+
+        html += `
+            <div class="cartao-bill-info">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span>Fatura referente às compras de <strong style="color: #ffd4b3;">${escapeHtml(mesAnt || '—')}</strong></span>
+            </div>
+        `;
+
+        cartoes.forEach((c, idx) => {
+            const itens = porCartao[c];
+            const subtotal = itens.reduce((sum, i) => sum + (parseFloat(i.valor) || 0), 0);
+            totalGeral += subtotal;
+
+            html += `
+                <div class="cartao-card-block" style="animation-delay: ${idx * 0.05}s">
+                    <div class="cartao-card-head">
+                        <span class="cartao-card-name">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                <line x1="1" y1="10" x2="23" y2="10"/>
+                            </svg>
+                            ${escapeHtml(c)}
+                        </span>
+                        <span class="cartao-card-total">${formatarMoeda(subtotal)}</span>
+                    </div>
+                    <ul class="cartao-item-list">
+                        ${itens.map(item => `
+                            <li class="cartao-item">
+                                <span class="cartao-item-desc">${escapeHtml(item.descricao)}</span>
+                                <span style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                    <span class="cartao-item-value">${formatarMoeda(parseFloat(item.valor) || 0)}</span>
+                                    <span class="cartao-actions">
+                                        <button class="btn-icon" onclick="prepararEdicao('${item.id}')" title="Editar" aria-label="Editar">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 20h9"/>
+                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="excluirTransacao('${item.id}')" title="Excluir" aria-label="Excluir">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        });
+
+        content.innerHTML = html;
+        countEl.textContent = `${dados.length} · ${formatarMoeda(totalGeral)}`;
+        return totalGeral;
+    }
+
     /* ============ DASHBOARD ============ */
     function calcularStatsMes(nomeAba) {
-        const dados = cacheGlobalDados.filter(d => String(d.aba).trim().toLowerCase() === String(nomeAba).trim().toLowerCase());
+        const norm = s => String(s || '').trim().toLowerCase();
+        const alvo = norm(nomeAba);
+        const mesAnt = mesAnterior(nomeAba);
+        const alvoAnt = mesAnt ? norm(mesAnt) : null;
+
         let renda = 0, despesas = 0;
-        dados.forEach(d => {
+
+        cacheGlobalDados.forEach(d => {
             const v = parseFloat(d.valor) || 0;
-            if (d.tipo === 'entrada') renda += v;
-            else despesas += v;
+            const dAba = norm(d.aba);
+
+            if (dAba === alvo) {
+                // Transações do mês: só as que NÃO são cartão
+                if (d.cartao) return;
+                if (d.tipo === 'entrada') renda += v;
+                else despesas += v;
+            } else if (alvoAnt && dAba === alvoAnt && d.cartao) {
+                // Compras no crédito do mês anterior contam na fatura deste mês
+                despesas += v;
+            }
         });
+
         return { mes: nomeAba, renda, despesas, saldo: renda - despesas };
     }
 
@@ -2151,12 +2621,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
             return;
         }
 
-        // maior valor para escala das barras
-        const maxValor = Math.max(1, ...stats.map(s => Math.max(s.renda, s.despesas)));
-
         stats.forEach((s, i) => {
-            const rendaPct = (s.renda / maxValor) * 100;
-            const despesaPct = (s.despesas / maxValor) * 100;
             const total = s.renda + s.despesas;
             const totalPctRenda = total > 0 ? (s.renda / total) * 100 : 50;
             const totalPctDespesa = total > 0 ? (s.despesas / total) * 100 : 50;
@@ -2166,7 +2631,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
             row.style.animationDelay = `${i * 0.05}s`;
             row.innerHTML = `
                 <div class="month-row-head">
-                    <span class="month-row-name">${s.mes}</span>
+                    <span class="month-row-name">${escapeHtml(s.mes)}</span>
                     <span class="month-row-saldo ${s.saldo >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(s.saldo)}</span>
                 </div>
                 <div class="month-bar-viz">
