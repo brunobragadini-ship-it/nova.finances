@@ -570,6 +570,7 @@ li.item.is-pago .item-desc {
     align-items: center;
     gap: 8px;
     margin-top: 3px;
+    flex-wrap: wrap;
 }
 .item-date {
     font-size: 10.5px;
@@ -591,6 +592,22 @@ li.item.is-pago .item-desc {
 }
 .item-tag.tag-entrada { color: #4ade80; background: var(--success-soft); }
 .item-tag.tag-despesa { color: #f87171; background: var(--danger-soft); }
+
+/* ===== NOVO: tag de cartão + estilo da linha ===== */
+.item-tag.tag-cartao {
+    color: #fb923c;
+    background: rgba(249, 115, 22, 0.15);
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    text-transform: none;
+    letter-spacing: 0.2px;
+    font-size: 10px;
+}
+li.item.is-cartao {
+    background: linear-gradient(90deg, rgba(249, 115, 22, 0.07) 0%, var(--surface) 40%);
+}
 
 .item-value {
     font-family: 'Space Grotesk', sans-serif;
@@ -1504,10 +1521,10 @@ form button[type="submit"]:active { transform: scale(0.98); }
             <ul id="lista20"></ul>
         </div>
 
-        <!-- SEÇÃO: FATURA DO CARTÃO -->
+        <!-- SEÇÃO: FATURA DO CARTÃO (detalhamento) -->
         <div class="list-group cartao-group" id="cartaoGroup" style="display: none;">
             <div class="list-header">
-                <span>💳 Fatura do Cartão</span>
+                <span>💳 Detalhamento da Fatura</span>
                 <span class="line"></span>
                 <span class="count" id="countCartao">0</span>
             </div>
@@ -1631,6 +1648,10 @@ form button[type="submit"]:active { transform: scale(0.98); }
                 <div id="cartaoFields" style="display: none; margin-top: 12px;">
                     <label for="selectCartao" style="margin-top: 0;">Cartão</label>
                     <select id="selectCartao"></select>
+
+                    <label for="selectMesFatura" style="margin-top: 12px;">Mês da Fatura</label>
+                    <select id="selectMesFatura"></select>
+
                     <button type="button" class="btn-mini" onclick="criarNovoCartao()" style="margin-top: 10px; width: 100%; justify-content: center; padding: 10px;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"/>
@@ -1639,7 +1660,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
                         Adicionar novo cartão
                     </button>
                     <p style="font-size: 11px; color: var(--text-dim); margin: 10px 0 0; line-height: 1.5;">
-                        💡 Esta despesa será automaticamente lançada na <strong style="color: #ffd4b3;">fatura do próximo mês</strong>.
+                        💡 Esta despesa será lançada na <strong style="color: #ffd4b3;">fatura do mês selecionado acima</strong>.
                     </p>
                 </div>
             </div>
@@ -1716,7 +1737,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
     let syncsPendentes = 0;
     let abaterApenasPagos = localStorage.getItem('abaterApenasPagos') === 'true';
     let telaAtual = 'lancamentos';
-    let colunaCartaoExiste = true; // detectado automaticamente
+    let colunaCartaoExiste = true;
 
     let chartBarras = null;
     let chartLinha = null;
@@ -1840,6 +1861,25 @@ form button[type="submit"]:active { transform: scale(0.98); }
         }
     }
 
+    function obterMesFaturaPadrao() {
+        return proximoMes(abaSelecionada) || abaSelecionada;
+    }
+
+    function atualizarSelectMesFatura(valorSelecionado) {
+        const select = document.getElementById('selectMesFatura');
+        if (!select) return;
+        select.innerHTML = '';
+        ORDEM_MESES.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            select.appendChild(opt);
+        });
+        const padrao = valorSelecionado || obterMesFaturaPadrao();
+        select.value = padrao;
+        if (!select.value) select.value = ORDEM_MESES[0];
+    }
+
     function criarNovoCartao() {
         const nome = prompt('Nome do novo cartão (ex: Cartão Nubank, Cartão Inter):');
         if (!nome || !nome.trim()) return;
@@ -1915,7 +1955,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
 
             if (data && Array.isArray(data)) {
                 cacheGlobalDados = data;
-                // Detecta se a coluna 'cartao' existe pelo retorno
                 if (data.length > 0) {
                     colunaCartaoExiste = 'cartao' in data[0];
                 }
@@ -1939,13 +1978,21 @@ form button[type="submit"]:active { transform: scale(0.98); }
         const norm = s => String(s || '').trim().toLowerCase();
         const alvo = norm(abaSelecionada);
 
-        const dadosMes = cacheGlobalDados.filter(item => norm(item.aba) === alvo);
+        // Itens normais do mês (sem cartão)
+        const dadosMes = cacheGlobalDados.filter(item =>
+            norm(item.aba) === alvo && !item.cartao
+        );
 
-        // Fatura do cartão = compras no crédito do mês ANTERIOR
-        const mesAnt = mesAnterior(abaSelecionada);
-        const dadosFatura = mesAnt
-            ? cacheGlobalDados.filter(item => norm(item.aba) === norm(mesAnt) && item.cartao)
-            : [];
+        // Itens de cartão cuja fatura é este mês
+        const dadosFatura = cacheGlobalDados.filter(item => {
+            if (!item.cartao) return false;
+            let target = item.mes_fatura;
+            if (!target) {
+                // Legado: sem mes_fatura, cai no mês seguinte ao da compra
+                target = proximoMes(item.aba);
+            }
+            return target && norm(target) === alvo;
+        });
 
         renderizarTela(dadosMes, dadosFatura);
         if (telaAtual === 'dashboard') {
@@ -2020,6 +2067,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         setTimeout(() => document.getElementById('descricao').focus(), 200);
         toggleCartaoOption();
         atualizarSelectCartoes();
+        atualizarSelectMesFatura();
     }
     function fecharModalFormulario() {
         document.getElementById('modalForm').classList.remove('active');
@@ -2041,6 +2089,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         if (tipo === 'despesa') {
             section.style.display = 'block';
             atualizarSelectCartoes();
+            atualizarSelectMesFatura();
         } else {
             section.style.display = 'none';
             document.getElementById('checkCartao').checked = false;
@@ -2051,7 +2100,10 @@ form button[type="submit"]:active { transform: scale(0.98); }
     function toggleCartaoFields() {
         const checked = document.getElementById('checkCartao').checked;
         document.getElementById('cartaoFields').style.display = checked ? 'block' : 'none';
-        if (checked) atualizarSelectCartoes();
+        if (checked) {
+            atualizarSelectCartoes();
+            atualizarSelectMesFatura();
+        }
     }
 
     /* ============ ABAS ============ */
@@ -2068,7 +2120,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
         abaSelecionada = nomeLimpo;
         atualizarSelectAbas();
 
-        // Não envia 'cartao' — deixa o banco usar NULL por padrão
         const novosLancamentos = lancamentosPadrao.map(item => ({ ...item, aba: nomeLimpo }));
 
         gerenciarSyncState(1);
@@ -2113,10 +2164,16 @@ form button[type="submit"]:active { transform: scale(0.98); }
 
         const isCartao = tipo === 'despesa' && document.getElementById('checkCartao').checked;
         let cartao = null;
+        let mesFatura = null;
         if (isCartao) {
             cartao = document.getElementById('selectCartao').value;
+            mesFatura = document.getElementById('selectMesFatura').value;
             if (!cartao) {
                 alert('Selecione ou crie um cartão de crédito.');
+                return;
+            }
+            if (!mesFatura) {
+                alert('Selecione o mês da fatura.');
                 return;
             }
             salvarCartaoStorage(cartao);
@@ -2131,9 +2188,9 @@ form button[type="submit"]:active { transform: scale(0.98); }
                 const itemAntigo = index !== -1 ? cacheGlobalDados[index] : null;
 
                 const payload = { descricao, valor, data_pgto: dataPgto, tipo };
-                // Só envia 'cartao' se: (a) tem valor agora, ou (b) antes tinha valor (pra poder limpar)
                 if (cartao || (itemAntigo && itemAntigo.cartao)) {
                     payload.cartao = cartao;
+                    payload.mes_fatura = cartao ? mesFatura : null;
                 }
 
                 if (index !== -1) {
@@ -2144,7 +2201,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
                 const { error } = await supabaseClient.from('lancamentos').update(payload).eq('id', idEdit);
                 if (error) {
                     console.error('Erro ao atualizar:', error);
-                    alert('Erro ao atualizar: ' + (error.message || 'Verifique se a coluna "cartao" existe no Supabase.'));
+                    alert('Erro ao atualizar: ' + (error.message || 'Verifique se as colunas "cartao" e "mes_fatura" existem no Supabase.'));
                     await carregarDadosSilencioso();
                 }
             } else {
@@ -2156,14 +2213,16 @@ form button[type="submit"]:active { transform: scale(0.98); }
                     tipo,
                     pago: false
                 };
-                // Só inclui o campo cartao se realmente tiver valor
-                if (cartao) payload.cartao = cartao;
+                if (cartao) {
+                    payload.cartao = cartao;
+                    payload.mes_fatura = mesFatura;
+                }
 
                 const { data, error } = await supabaseClient.from('lancamentos').insert([payload]).select();
 
                 if (error) {
                     console.error('Erro ao inserir:', error);
-                    alert('Erro ao salvar lançamento:\n\n' + (error.message || 'Verifique se a coluna "cartao" existe no Supabase.') + '\n\nSe necessário, rode no SQL Editor:\nALTER TABLE lancamentos ADD COLUMN cartao text;');
+                    alert('Erro ao salvar lançamento:\n\n' + (error.message || 'Verifique se as colunas "cartao" e "mes_fatura" existem no Supabase.') + '\n\nSe necessário, rode no SQL Editor:\nALTER TABLE lancamentos ADD COLUMN cartao text;\nALTER TABLE lancamentos ADD COLUMN mes_fatura text;');
                     await carregarDadosSilencioso();
                 } else if (data && data.length > 0) {
                     cacheGlobalDados.push(data[0]);
@@ -2189,7 +2248,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
 
         toggleCartaoOption();
         if (item.cartao) {
-            // Garante que o cartão existe no select
             const cartoes = obterCartoesConhecidos();
             if (!cartoes.includes(item.cartao)) {
                 salvarCartaoStorage(item.cartao);
@@ -2198,6 +2256,11 @@ form button[type="submit"]:active { transform: scale(0.98); }
             document.getElementById('checkCartao').checked = true;
             document.getElementById('cartaoFields').style.display = 'block';
             document.getElementById('selectCartao').value = item.cartao;
+
+            // Mês da fatura: usa o salvo ou cai no próximo mês (legado)
+            let mesFatura = item.mes_fatura;
+            if (!mesFatura) mesFatura = proximoMes(item.aba) || item.aba;
+            atualizarSelectMesFatura(mesFatura);
         } else {
             document.getElementById('checkCartao').checked = false;
             document.getElementById('cartaoFields').style.display = 'none';
@@ -2219,8 +2282,8 @@ form button[type="submit"]:active { transform: scale(0.98); }
 
     /* ============ RENDER LANÇAMENTOS ============ */
     function renderizarTela(dadosLocais, dadosFatura) {
-        // Remove compras de cartão das listas regulares (elas vão para a fatura do próximo mês)
-        const regular = dadosLocais.filter(d => !d.cartao);
+        // Junta itens regulares + itens de cartão da fatura deste mês
+        const todos = [...dadosLocais, ...dadosFatura];
 
         let r05 = 0, d05 = 0, r20 = 0, d20 = 0;
         const ul05 = document.getElementById('lista05');
@@ -2228,7 +2291,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
         ul05.innerHTML = '';
         ul20.innerHTML = '';
 
-        const dadosOrdenados = [...regular].sort((a, b) => {
+        const dadosOrdenados = [...todos].sort((a, b) => {
             const ehEntradaA = a.tipo === 'entrada' ? 1 : 0;
             const ehEntradaB = b.tipo === 'entrada' ? 1 : 0;
             if (ehEntradaA !== ehEntradaB) return ehEntradaB - ehEntradaA;
@@ -2243,6 +2306,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
             const ehDia20 = dataTexto.includes('20');
             const ehDespesa = item.tipo !== 'entrada';
             const taPago = item.pago === true;
+            const isCartao = !!item.cartao;
 
             const checkboxHtml = ehDespesa
                 ? `<label class="custom-checkbox-container" title="Marcar como pago">
@@ -2252,8 +2316,12 @@ form button[type="submit"]:active { transform: scale(0.98); }
                 : `<div style="width: 22px; flex-shrink: 0;"></div>`;
 
             const li = document.createElement('li');
-            li.className = `item ${!ehDespesa ? 'is-entrada' : 'is-despesa'} ${taPago ? 'is-pago' : ''}`;
+            li.className = `item ${!ehDespesa ? 'is-entrada' : 'is-despesa'} ${taPago ? 'is-pago' : ''} ${isCartao ? 'is-cartao' : ''}`;
             li.style.animationDelay = `${Math.min(idx * 0.02, 0.4)}s`;
+
+            const cartaoBadge = isCartao
+                ? `<span class="item-tag tag-cartao" title="Cartão: ${escapeHtml(item.cartao)}">💳 ${escapeHtml(item.cartao)}</span>`
+                : '';
 
             li.innerHTML = `
                 ${checkboxHtml}
@@ -2267,6 +2335,7 @@ form button[type="submit"]:active { transform: scale(0.98); }
                             Dia ${escapeHtml(dataTexto)}
                         </span>
                         <span class="item-tag ${ehDespesa ? 'tag-despesa' : 'tag-entrada'}">${ehDespesa ? 'Despesa' : 'Entrada'}</span>
+                        ${cartaoBadge}
                     </div>
                 </div>
                 <div class="item-value ${!ehDespesa ? 'up' : 'down'}">
@@ -2321,11 +2390,11 @@ form button[type="submit"]:active { transform: scale(0.98); }
         elRes20.innerText = formatarMoeda(saldo20);
         elRes20.classList.toggle('negativo', saldo20 < 0);
 
-        // Renderiza fatura do cartão
-        const totalCartao = renderizarFatura(dadosFatura || []);
+        // Detalhamento da fatura (informativo, abaixo da lista)
+        renderizarFatura(dadosFatura || []);
 
         const totalRenda = r05 + r20;
-        const totalDespesas = d05 + d20 + totalCartao;
+        const totalDespesas = d05 + d20; // itens de cartão já estão contados aqui
         const totalSobra = totalRenda - totalDespesas;
 
         document.getElementById('rTot').innerText = formatarMoeda(totalRenda);
@@ -2349,7 +2418,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
 
         group.style.display = 'block';
 
-        // Agrupa por cartão
         const porCartao = {};
         dados.forEach(d => {
             const c = d.cartao || 'Sem nome';
@@ -2361,14 +2429,13 @@ form button[type="submit"]:active { transform: scale(0.98); }
 
         let html = '';
         let totalGeral = 0;
-        const mesAnt = mesAnterior(abaSelecionada);
 
         html += `
             <div class="cartao-bill-info">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
-                <span>Fatura referente às compras de <strong style="color: #ffd4b3;">${escapeHtml(mesAnt || '—')}</strong></span>
+                <span>Detalhamento — Fatura de <strong style="color: #ffd4b3;">${escapeHtml(abaSelecionada)}</strong></span>
             </div>
         `;
 
@@ -2426,8 +2493,6 @@ form button[type="submit"]:active { transform: scale(0.98); }
     function calcularStatsMes(nomeAba) {
         const norm = s => String(s || '').trim().toLowerCase();
         const alvo = norm(nomeAba);
-        const mesAnt = mesAnterior(nomeAba);
-        const alvoAnt = mesAnt ? norm(mesAnt) : null;
 
         let renda = 0, despesas = 0;
 
@@ -2435,14 +2500,19 @@ form button[type="submit"]:active { transform: scale(0.98); }
             const v = parseFloat(d.valor) || 0;
             const dAba = norm(d.aba);
 
-            if (dAba === alvo) {
-                // Transações do mês: só as que NÃO são cartão
-                if (d.cartao) return;
-                if (d.tipo === 'entrada') renda += v;
-                else despesas += v;
-            } else if (alvoAnt && dAba === alvoAnt && d.cartao) {
-                // Compras no crédito do mês anterior contam na fatura deste mês
-                despesas += v;
+            if (!d.cartao) {
+                // Item normal — conta se for do mês
+                if (dAba === alvo) {
+                    if (d.tipo === 'entrada') renda += v;
+                    else despesas += v;
+                }
+            } else {
+                // Item de cartão — conta no mês da fatura
+                let target = d.mes_fatura;
+                if (!target) target = proximoMes(d.aba);
+                if (target && norm(target) === alvo) {
+                    despesas += v;
+                }
             }
         });
 
