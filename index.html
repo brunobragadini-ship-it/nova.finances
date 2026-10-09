@@ -997,13 +997,26 @@ form button[type="submit"]:hover {
 }
 .fab-button:active { transform: scale(0.95); }
 
+/* ============ DESKTOP ONLY: grade de lançamentos ============ */
+/* No mobile, esses 2 wrappers ficam em fluxo normal (empilhados) */
+.lancamentos-duplo {
+    display: contents; /* No mobile, os filhos se comportam como se não existisse wrapper */
+}
+.col-entradas,
+.col-despesas {
+    display: contents;
+}
+.col-title {
+    display: none; /* Só aparece no desktop */
+}
+
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
 /* ============================================================
-   DESKTOP LAYOUT (>= 1024px)
+   ============ DESKTOP (>= 1024px) ==========================
    ============================================================ */
 @media (min-width: 1024px) {
 
@@ -1011,27 +1024,32 @@ form button[type="submit"]:hover {
         padding-bottom: 40px;
     }
 
-    /* Container vira grid de 2 colunas */
     .container {
         max-width: 1400px;
         padding: 32px 40px 40px;
-        display: grid;
-        grid-template-columns: minmax(380px, 480px) 1fr;
-        grid-template-rows: auto auto auto auto auto auto;
-        column-gap: 32px;
-        row-gap: 0;
-        align-items: start;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
     }
 
-    /* Header ocupa as duas colunas (topo) */
+    /* ===== TOPO EM HORIZONTAL ===== */
+
+    /* Header (barra do mês) — centralizado mas com espaço */
     .home-header {
-        grid-column: 1 / -1;
-        margin-bottom: 24px;
-        padding: 0;
+        display: grid;
         grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 0;
+        padding: 0;
     }
 
-    /* Selector do mês centralizado, largura controlada */
+    .menu-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+    }
+
     .header-month {
         justify-self: center;
         min-width: 340px;
@@ -1045,50 +1063,87 @@ form button[type="submit"]:hover {
         padding: 8px 26px;
     }
 
-    .menu-btn {
-        width: 48px;
-        height: 48px;
-        border-radius: 16px;
-    }
-
-    /* Espaço espelhado à direita para centralizar o mês */
     .home-header::after {
         content: '';
         width: 48px;
         height: 48px;
     }
 
-    /* ============ COLUNA ESQUERDA ============ */
-
-    /* Resumo */
+    /* Topo horizontal: resumo + períodos lado a lado */
     .resumo-card {
-        grid-column: 1 / 2;
-        grid-row: 2 / 3;
-        margin-bottom: 20px;
-        padding: 32px 28px 28px;
+        margin-bottom: 0;
+        padding: 28px 32px 26px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 40px;
+        text-align: left;
+    }
+
+    /* Reorganiza o conteúdo do resumo em linha */
+    .resumo-title {
+        display: none; /* Esconde o título "Resumo do mês" no desktop */
+    }
+
+    /* Saldo (esquerda) */
+    .resumo-saldo {
+        align-items: flex-start;
+        text-align: left;
+        padding-bottom: 0;
+        border-bottom: none;
+        margin-bottom: 0;
+        gap: 4px;
+        padding-right: 40px;
+        border-right: 1px solid var(--border-3);
+    }
+
+    .resumo-saldo-label {
+        text-align: left;
     }
 
     .resumo-saldo-value {
-        font-size: 48px;
+        font-size: 42px;
+        text-align: left;
+    }
+
+    /* Entradas / Despesas (direita) */
+    .resumo-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        min-width: 380px;
+    }
+
+    .resumo-item {
+        align-items: flex-start;
+        text-align: left;
+        padding: 16px 20px;
+    }
+
+    .resumo-label,
+    .resumo-value,
+    .resumo-sub {
+        text-align: left;
     }
 
     .resumo-value {
-        font-size: 20px;
+        font-size: 22px;
     }
 
-    /* Period Grid */
+    /* Período grid fica abaixo do resumo, mas ainda dentro do "topo" — 
+       na verdade vamos colocá-lo como um bloco de 2 cols ao lado
+       dos lançamentos. Aqui ajustamos para largura total */
     .period-grid {
-        grid-column: 1 / 2;
-        grid-row: 3 / 4;
         margin-bottom: 0;
+        gap: 16px;
     }
 
     .period-card {
-        padding: 22px 20px 20px;
+        padding: 20px 22px 20px;
     }
 
     .period-value {
-        font-size: 22px;
+        font-size: 24px;
     }
 
     .period-line {
@@ -1099,75 +1154,102 @@ form button[type="submit"]:hover {
         font-size: 13.5px;
     }
 
-    /* ============ COLUNA DIREITA ============ */
-
-    /* Título "Lançamentos" + botão Novo (grid-row 2) */
+    /* ===== TÍTULO LANÇAMENTOS + BOTÃO NOVO ===== */
     .container > .section-head {
-        grid-column: 2 / 3;
-        grid-row: 2 / 3;
-        margin-bottom: 14px;
+        margin-bottom: 0;
         padding: 0;
-        align-self: start;
     }
 
-    /* Loading state oculto quando carrega (fica em row 3) */
+    .section-title {
+        font-size: 12px;
+    }
+
     .container > #status {
-        grid-column: 2 / 3;
-        grid-row: 2 / 3;
-        align-self: end;
+        margin-top: -20px;
         padding: 0;
-        justify-self: end;
-        font-size: 11px;
-        color: var(--text-4);
-    }
-    .container > #status::before {
-        width: 10px;
-        height: 10px;
-        border-width: 1px;
     }
 
-    /* Listas de lançamentos — cada uma em sua própria row na coluna direita */
-    .container > .list-group:nth-of-type(1) {
-        grid-column: 2 / 3;
-        grid-row: 3 / 4;
-        margin-bottom: 20px;
+    /* ===== LANÇAMENTOS EM DUAS COLUNAS ===== */
+    /* Ativa o layout duplo no desktop */
+    .lancamentos-duplo {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: start;
     }
-    .container > .list-group:nth-of-type(2) {
-        grid-column: 2 / 3;
-        grid-row: 4 / 5;
-        margin-bottom: 20px;
+
+    .col-entradas,
+    .col-despesas {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 0;
     }
-    .container > .list-group:nth-of-type(3) {
-        grid-column: 2 / 3;
-        grid-row: 5 / 6;
+
+    .col-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        padding: 0 4px;
+    }
+
+    .col-title::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .col-title.entradas::before {
+        background: var(--neon-green);
+        box-shadow: 0 0 12px var(--neon-green);
+    }
+
+    .col-title.despesas::before {
+        background: var(--neon-red);
+        box-shadow: 0 0 12px var(--neon-red);
+    }
+
+    .col-title .col-count {
+        margin-left: auto;
+        font-size: 10px;
+        color: var(--white);
+        font-weight: 700;
+        padding: 3px 9px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* As listas dentro das colunas têm altura máx + scroll */
+    .col-entradas > .list-group,
+    .col-despesas > .list-group {
         margin-bottom: 0;
     }
 
-    /* Listas com altura controlada e scroll interno */
-    .container > .list-group ul {
-        max-height: 420px;
+    .col-entradas > .list-group ul,
+    .col-despesas > .list-group ul {
+        max-height: 500px;
         overflow-y: auto;
     }
-    .container > .list-group ul::-webkit-scrollbar { width: 5px; }
-    .container > .list-group ul::-webkit-scrollbar-thumb {
+
+    .col-entradas > .list-group ul::-webkit-scrollbar,
+    .col-despesas > .list-group ul::-webkit-scrollbar { width: 5px; }
+
+    .col-entradas > .list-group ul::-webkit-scrollbar-thumb,
+    .col-despesas > .list-group ul::-webkit-scrollbar-thumb {
         background: rgba(255, 255, 255, 0.15);
         border-radius: 3px;
     }
 
-    /* Itens de lançamento ligeiramente mais altos no desktop */
-    li.item {
-        padding: 16px 18px;
-    }
-
-    .item-desc {
-        font-size: 14.5px;
-    }
-
-    .item-value {
-        font-size: 14.5px;
-    }
-
-    /* FAB ajustado */
+    /* FAB */
     .fab-button {
         bottom: 32px;
         right: 32px;
@@ -1178,24 +1260,20 @@ form button[type="submit"]:hover {
     }
 }
 
-/* Telas muito largas (>= 1600px) */
+/* Telas muito largas */
 @media (min-width: 1600px) {
     .container {
         max-width: 1600px;
         padding: 40px 60px;
-        column-gap: 40px;
+        gap: 28px;
     }
 
     .resumo-saldo-value {
-        font-size: 56px;
+        font-size: 52px;
     }
 
     .period-value {
-        font-size: 24px;
-    }
-
-    .container > .list-group ul {
-        max-height: 480px;
+        font-size: 26px;
     }
 }
 </style>
@@ -1294,17 +1372,26 @@ form button[type="submit"]:hover {
 
     <div id="status" class="loading-state">A carregar dados</div>
 
-    <div class="list-group">
-        <div class="list-header"><span>Dia 05</span><span class="line"></span><span class="count" id="count05">0</span></div>
-        <ul id="lista05"></ul>
-    </div>
-    <div class="list-group">
-        <div class="list-header"><span>Dia 20</span><span class="line"></span><span class="count" id="count20">0</span></div>
-        <ul id="lista20"></ul>
-    </div>
-    <div class="list-group cartao-group" id="cartaoGroup" style="display: none;">
-        <div class="list-header"><span>Fatura do Cartão</span><span class="line"></span><span class="count" id="countCartao">0</span></div>
-        <div id="cartaoContent"></div>
+    <!-- Wrapper que no mobile é display:contents (transparente) e no desktop vira grid 2 colunas -->
+    <div class="lancamentos-duplo">
+        <div class="col-entradas">
+            <div class="col-title entradas">Entradas <span class="col-count" id="colCountEntradas">0</span></div>
+            <div class="list-group">
+                <div class="list-header"><span>Dia 05</span><span class="line"></span><span class="count" id="count05">0</span></div>
+                <ul id="lista05"></ul>
+            </div>
+            <div class="list-group">
+                <div class="list-header"><span>Dia 20</span><span class="line"></span><span class="count" id="count20">0</span></div>
+                <ul id="lista20"></ul>
+            </div>
+        </div>
+        <div class="col-despesas">
+            <div class="col-title despesas">Despesas <span class="col-count" id="colCountDespesas">0</span></div>
+            <div class="list-group cartao-group" id="cartaoGroup" style="display: none;">
+                <div class="list-header"><span>Fatura do Cartão</span><span class="line"></span><span class="count" id="countCartao">0</span></div>
+                <div id="cartaoContent"></div>
+            </div>
+        </div>
     </div>
 
     <div class="hero-card" aria-hidden="true">
@@ -1980,6 +2067,12 @@ form button[type="submit"]:hover {
         if (count20 === 0) ul20.innerHTML = `<div class="empty-state">Nenhum lançamento neste período</div>`;
         document.getElementById('count05').innerText = count05;
         document.getElementById('count20').innerText = count20;
+
+        // Contadores das colunas (desktop)
+        const elColEntradas = document.getElementById('colCountEntradas');
+        const elColDespesas = document.getElementById('colCountDespesas');
+        if (elColEntradas) elColEntradas.textContent = count05 + count20;
+        if (elColDespesas) elColDespesas.textContent = count05 + count20;
 
         document.getElementById('r05').innerText = formatarMoeda(r05);
         document.getElementById('d05').innerText = formatarMoeda(d05);
