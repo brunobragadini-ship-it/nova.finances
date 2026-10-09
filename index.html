@@ -1927,8 +1927,9 @@ form button[type="submit"]:active { transform: scale(0.99); }
         }
     }
 
+    // ✅ ALTERADO: agora retorna o MÊS ATUAL (aba selecionada), não o próximo
     function obterMesFaturaPadrao() {
-        return proximoMes(abaSelecionada) || abaSelecionada;
+        return abaSelecionada;
     }
 
     function atualizarSelectMesFatura(valorSelecionado) {
@@ -2051,7 +2052,7 @@ form button[type="submit"]:active { transform: scale(0.99); }
             if (!item.cartao) return false;
             let target = item.mes_fatura;
             if (!target) {
-                target = proximoMes(item.aba);
+                target = item.aba;
             }
             return target && norm(target) === alvo;
         });
@@ -2313,8 +2314,9 @@ form button[type="submit"]:active { transform: scale(0.99); }
             document.getElementById('cartaoFields').style.display = 'block';
             document.getElementById('selectCartao').value = item.cartao;
 
+            // ✅ ALTERADO: fallback usa o mês do item (aba), não o próximo
             let mesFatura = item.mes_fatura;
-            if (!mesFatura) mesFatura = proximoMes(item.aba) || item.aba;
+            if (!mesFatura) mesFatura = item.aba;
             atualizarSelectMesFatura(mesFatura);
         } else {
             document.getElementById('checkCartao').checked = false;
@@ -2594,7 +2596,7 @@ form button[type="submit"]:active { transform: scale(0.99); }
                 }
             } else {
                 let target = d.mes_fatura;
-                if (!target) target = proximoMes(d.aba);
+                if (!target) target = d.aba;
                 if (target && norm(target) === alvo) {
                     despesas += v;
                 }
