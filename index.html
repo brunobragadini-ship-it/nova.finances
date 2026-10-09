@@ -325,7 +325,6 @@ body::before {
     font-variant-numeric: tabular-nums;
 }
 
-/* ============ HERO (oculto) ============ */
 .hero-card { display: none !important; }
 
 /* ============ PERIOD GRID ============ */
@@ -1004,139 +1003,171 @@ form button[type="submit"]:hover {
 ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
 /* ============================================================
-   ============ DESKTOP LAYOUT (>= 1000px) ====================
+   DESKTOP LAYOUT (>= 1024px)
    ============================================================ */
-@media (min-width: 1000px) {
+@media (min-width: 1024px) {
 
     body {
-        padding-bottom: 40px; /* sem FAB grande no desktop, mantemos margem menor */
+        padding-bottom: 40px;
     }
 
+    /* Container vira grid de 2 colunas */
     .container {
-        max-width: 1280px;
-        padding: 32px 32px 32px;
+        max-width: 1400px;
+        padding: 32px 40px 40px;
         display: grid;
-        grid-template-columns: minmax(360px, 1fr) minmax(520px, 1.5fr);
-        grid-template-rows: auto auto 1fr;
-        gap: 20px 28px;
+        grid-template-columns: minmax(380px, 480px) 1fr;
+        grid-template-rows: auto auto auto auto auto auto;
+        column-gap: 32px;
+        row-gap: 0;
         align-items: start;
     }
 
-    /* Header ocupa as duas colunas */
+    /* Header ocupa as duas colunas (topo) */
     .home-header {
         grid-column: 1 / -1;
-        margin-bottom: 8px;
+        margin-bottom: 24px;
         padding: 0;
         grid-template-columns: auto 1fr auto;
     }
-    /* O header-month deixa de esticar tanto — vira um bloco compacto */
+
+    /* Selector do mês centralizado, largura controlada */
     .header-month {
         justify-self: center;
-        min-width: 320px;
-        max-width: 420px;
-        padding: 6px 8px 6px 8px;
+        min-width: 340px;
+        max-width: 440px;
+        padding: 8px 10px;
+        border-radius: 22px;
     }
-    /* Botão de settings no canto esquerdo, mais destacado */
+
+    #selectAba {
+        font-size: 16px;
+        padding: 8px 26px;
+    }
+
     .menu-btn {
-        width: 46px;
-        height: 46px;
+        width: 48px;
+        height: 48px;
         border-radius: 16px;
     }
 
-    /* Cria um espaço vazio no canto direito para equilibrar (espelho do menu-btn) */
+    /* Espaço espelhado à direita para centralizar o mês */
     .home-header::after {
         content: '';
-        width: 46px;
-        height: 46px;
+        width: 48px;
+        height: 48px;
     }
 
-    /* Resumo ocupa a coluna esquerda */
+    /* ============ COLUNA ESQUERDA ============ */
+
+    /* Resumo */
     .resumo-card {
         grid-column: 1 / 2;
         grid-row: 2 / 3;
-        margin-bottom: 0;
+        margin-bottom: 20px;
+        padding: 32px 28px 28px;
     }
 
-    /* Period Grid ocupa a coluna esquerda, logo abaixo do resumo */
+    .resumo-saldo-value {
+        font-size: 48px;
+    }
+
+    .resumo-value {
+        font-size: 20px;
+    }
+
+    /* Period Grid */
     .period-grid {
         grid-column: 1 / 2;
         grid-row: 3 / 4;
         margin-bottom: 0;
     }
 
-    /* Área de lançamentos ocupa a coluna direita inteira */
-    /* Agrupamos os elementos de "Lançamentos" via seletores */
+    .period-card {
+        padding: 22px 20px 20px;
+    }
 
-    /* O section-head (título "Lançamentos" + botão Novo) */
+    .period-value {
+        font-size: 22px;
+    }
+
+    .period-line {
+        font-size: 13px;
+    }
+
+    .period-line strong {
+        font-size: 13.5px;
+    }
+
+    /* ============ COLUNA DIREITA ============ */
+
+    /* Título "Lançamentos" + botão Novo (grid-row 2) */
     .container > .section-head {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
-        margin-bottom: 0;
+        margin-bottom: 14px;
         padding: 0;
-        align-self: end;
+        align-self: start;
     }
 
-    /* A lista de status (loading) */
+    /* Loading state oculto quando carrega (fica em row 3) */
     .container > #status {
         grid-column: 2 / 3;
-        grid-row: 3 / 4;
+        grid-row: 2 / 3;
+        align-self: end;
+        padding: 0;
+        justify-self: end;
+        font-size: 11px;
+        color: var(--text-4);
+    }
+    .container > #status::before {
+        width: 10px;
+        height: 10px;
+        border-width: 1px;
     }
 
-    /* Todos os list-groups dentro do container principal vão para a coluna direita */
-    .container > .list-group {
+    /* Listas de lançamentos — cada uma em sua própria row na coluna direita */
+    .container > .list-group:nth-of-type(1) {
         grid-column: 2 / 3;
-        margin-bottom: 14px;
+        grid-row: 3 / 4;
+        margin-bottom: 20px;
     }
-
-    /* Posicionamento em cascata dos list-groups dentro da coluna direita */
-    .container > .list-group:nth-of-type(1) { grid-row: 3 / 4; }
-    .container > .list-group:nth-of-type(2) { grid-row: 4 / 5; }
-    .container > .list-group:nth-of-type(3) { grid-row: 5 / 6; }
-
-    /* Precisamos empilhar: o grid padrão coloca cada list-group em linha própria,
-       então trocamos para um fluxo mais inteligente — usamos grid-auto-rows */
-    
-    /* Alternativa mais robusta: reorganizar em um fluxo de coluna direita */
-    /* Porém como queremos manter ordem simples, faremos o seguinte: */
-    
-    /* Simplificação: o container vira 2 colunas e a coluna direita tem um wrapper virtual.
-       Como não temos wrapper, usamos grid-row específicos: */
-
-    /* Reset para garantir layout coerente */
-    .container {
-        grid-template-areas:
-            "header header"
-            "resumo lanc-head"
-            "period lanc-1"
-            "period lanc-2"
-            "period lanc-3"
-            "period lanc-cartao";
+    .container > .list-group:nth-of-type(2) {
+        grid-column: 2 / 3;
+        grid-row: 4 / 5;
+        margin-bottom: 20px;
     }
-
-    .home-header { grid-area: header; }
-    .resumo-card { grid-area: resumo; }
-    .period-grid { grid-area: period; }
-
-    .container > .section-head { grid-area: lanc-head; }
-    .container > .list-group:nth-of-type(1) { grid-area: lanc-1; }
-    .container > .list-group:nth-of-type(2) { grid-area: lanc-2; }
-    .container > .list-group:nth-of-type(3) { grid-area: lanc-cartao; }
-
-    /* A coluna direita precisa empilhar os blocos com espaçamento */
-    .container > .section-head,
-    .container > .list-group {
+    .container > .list-group:nth-of-type(3) {
+        grid-column: 2 / 3;
+        grid-row: 5 / 6;
         margin-bottom: 0;
     }
 
-    /* Ajusta altura máxima para caber bem */
+    /* Listas com altura controlada e scroll interno */
     .container > .list-group ul {
-        max-height: 400px;
+        max-height: 420px;
         overflow-y: auto;
     }
     .container > .list-group ul::-webkit-scrollbar { width: 5px; }
-    .container > .list-group ul::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+    .container > .list-group ul::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 3px;
+    }
 
-    /* Ajusta o FAB para ficar menos intrusivo no desktop */
+    /* Itens de lançamento ligeiramente mais altos no desktop */
+    li.item {
+        padding: 16px 18px;
+    }
+
+    .item-desc {
+        font-size: 14.5px;
+    }
+
+    .item-value {
+        font-size: 14.5px;
+    }
+
+    /* FAB ajustado */
     .fab-button {
         bottom: 32px;
         right: 32px;
@@ -1145,71 +1176,26 @@ form button[type="submit"]:hover {
         border-radius: 18px;
         font-size: 26px;
     }
-
-    /* Tipografia um pouco maior para desktop */
-    .resumo-saldo-value {
-        font-size: 44px;
-    }
-
-    /* Aumenta um pouco os cards para preencher melhor */
-    .period-card {
-        padding: 22px 20px 20px;
-    }
-    .period-value {
-        font-size: 22px;
-    }
-    .period-line {
-        font-size: 13px;
-    }
-    .period-line strong {
-        font-size: 13.5px;
-    }
-
-    /* Resumo mais "respirável" no desktop */
-    .resumo-card {
-        padding: 30px 28px 26px;
-    }
-    .resumo-item {
-        padding: 20px 14px;
-    }
-    .resumo-value {
-        font-size: 20px;
-    }
-
-    /* Lista de lançamentos mais compacta no desktop */
-    li.item {
-        padding: 14px 16px;
-    }
-    .item-desc {
-        font-size: 14.5px;
-    }
-    .item-value {
-        font-size: 14.5px;
-    }
-
-    /* Empty state no desktop */
-    .empty-state {
-        padding: 40px 20px;
-    }
-
-    /* Cartão fatura sem esticar demais */
-    .cartao-card-block {
-        padding: 20px;
-    }
 }
 
-/* Ajuste fino para telas muito largas */
-@media (min-width: 1400px) {
+/* Telas muito largas (>= 1600px) */
+@media (min-width: 1600px) {
     .container {
-        max-width: 1440px;
-        gap: 24px 36px;
-        padding: 40px 48px;
+        max-width: 1600px;
+        padding: 40px 60px;
+        column-gap: 40px;
     }
+
     .resumo-saldo-value {
-        font-size: 52px;
+        font-size: 56px;
     }
+
     .period-value {
         font-size: 24px;
+    }
+
+    .container > .list-group ul {
+        max-height: 480px;
     }
 }
 </style>
@@ -1321,7 +1307,6 @@ form button[type="submit"]:hover {
         <div id="cartaoContent"></div>
     </div>
 
-    <!-- HERO oculto -->
     <div class="hero-card" aria-hidden="true">
         <div class="hero-value" id="resTot">R$ 0,00</div>
         <div class="hero-meta-value up" id="rTot">R$ 0,00</div>
