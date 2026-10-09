@@ -716,6 +716,25 @@ li.item:hover .item-actions { opacity: 1; }
 .btn-icon.danger:hover { color: var(--neon-red); background: var(--neon-red-soft); }
 .btn-icon svg { width: 13px; height: 13px; }
 
+/* ============ RESUMO CONSOLIDADO DO CARTÃO ============ */
+li.item.is-cartao-summary {
+    background: linear-gradient(90deg, rgba(139, 124, 255, 0.06), transparent 85%);
+    cursor: pointer;
+}
+li.item.is-cartao-summary::before {
+    background: var(--purple-bright) !important;
+    box-shadow: 0 0 12px var(--purple-bright) !important;
+    opacity: 1 !important;
+}
+li.item.is-cartao-summary:hover {
+    background: linear-gradient(90deg, rgba(139, 124, 255, 0.12), transparent 85%);
+}
+li.item.is-cartao-summary .item-desc {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
 /* ============ CHECKBOX ============ */
 .custom-checkbox-container {
     display: inline-flex;
@@ -2317,15 +2336,14 @@ form button[type="submit"]:active { transform: scale(0.99); }
     }
 
     function renderizarTela(dadosLocais, dadosFatura) {
-        const todos = [...dadosLocais, ...dadosFatura];
-
         let r05 = 0, d05 = 0, r20 = 0, d20 = 0;
         const ul05 = document.getElementById('lista05');
         const ul20 = document.getElementById('lista20');
         ul05.innerHTML = '';
         ul20.innerHTML = '';
 
-        const dadosOrdenados = [...todos].sort((a, b) => {
+        // ✅ Só lançamentos NORMAIS (sem cartão) aparecem individualmente
+        const dadosOrdenados = [...dadosLocais].sort((a, b) => {
             const ehEntradaA = a.tipo === 'entrada' ? 1 : 0;
             const ehEntradaB = b.tipo === 'entrada' ? 1 : 0;
             if (ehEntradaA !== ehEntradaB) return ehEntradaB - ehEntradaA;
@@ -2340,7 +2358,6 @@ form button[type="submit"]:active { transform: scale(0.99); }
             const ehDia20 = dataTexto.includes('20');
             const ehDespesa = item.tipo !== 'entrada';
             const taPago = item.pago === true;
-            const isCartao = !!item.cartao;
 
             const checkboxHtml = ehDespesa
                 ? `<label class="custom-checkbox-container" title="Marcar como pago">
@@ -2350,11 +2367,7 @@ form button[type="submit"]:active { transform: scale(0.99); }
                 : `<div style="width: 20px; flex-shrink: 0;"></div>`;
 
             const li = document.createElement('li');
-            li.className = `item ${!ehDespesa ? 'is-entrada' : 'is-despesa'} ${taPago ? 'is-pago' : ''} ${isCartao ? 'is-cartao' : ''}`;
-
-            const cartaoBadge = isCartao
-                ? `<span class="item-tag tag-cartao" title="Cartão: ${escapeHtml(item.cartao)}">💳 ${escapeHtml(item.cartao)}</span>`
-                : '';
+            li.className = `item ${!ehDespesa ? 'is-entrada' : 'is-despesa'} ${taPago ? 'is-pago' : ''}`;
 
             li.innerHTML = `
                 ${checkboxHtml}
@@ -2368,7 +2381,6 @@ form button[type="submit"]:active { transform: scale(0.99); }
                             Dia ${escapeHtml(dataTexto)}
                         </span>
                         <span class="item-tag ${ehDespesa ? 'tag-despesa' : 'tag-entrada'}">${ehDespesa ? 'Despesa' : 'Entrada'}</span>
-                        ${cartaoBadge}
                     </div>
                 </div>
                 <div class="item-value ${!ehDespesa ? 'up' : 'down'}">
@@ -2403,6 +2415,50 @@ form button[type="submit"]:active { transform: scale(0.99); }
                 count05++;
             }
         });
+
+        // ✅ Resumo consolidado — 1 linha por cartão mostrando o total da fatura
+        if (dadosFatura && dadosFatura.length > 0) {
+            const porCartao = {};
+            dadosFatura.forEach(d => {
+                const c = d.cartao || 'Sem nome';
+                if (!porCartao[c]) porCartao[c] = { total: 0, qtd: 0 };
+                porCartao[c].total += parseFloat(d.valor) || 0;
+                porCartao[c].qtd++;
+            });
+
+            Object.keys(porCartao).sort((a, b) => a.localeCompare(b)).forEach((nomeCartao) => {
+                const info = porCartao[nomeCartao];
+                const li = document.createElement('li');
+                li.className = 'item is-cartao is-cartao-summary';
+                li.setAttribute('title', 'Ver detalhes da fatura');
+                li.innerHTML = `
+                    <div style="width: 20px; flex-shrink: 0;"></div>
+                    <div class="item-info">
+                        <div class="item-desc">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--purple-bright);flex-shrink:0;">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                <line x1="1" y1="10" x2="23" y2="10"/>
+                            </svg>
+                            Cartão ${escapeHtml(nomeCartao)}
+                        </div>
+                        <div class="item-meta">
+                            <span class="item-tag tag-cartao">Fatura${info.qtd > 1 ? ' · ' + info.qtd + ' itens' : ''}</span>
+                        </div>
+                    </div>
+                    <div class="item-value down">− ${formatarMoeda(info.total)}</div>
+                    <div style="width: 20px; flex-shrink: 0;"></div>
+                `;
+                li.addEventListener('click', () => {
+                    const group = document.getElementById('cartaoGroup');
+                    if (group && group.style.display !== 'none') {
+                        group.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+                ul05.appendChild(li);
+                count05++;
+                d05 += info.total;
+            });
+        }
 
         if (count05 === 0) ul05.innerHTML = `<div class="empty-state">Nenhum lançamento neste período</div>`;
         if (count20 === 0) ul20.innerHTML = `<div class="empty-state">Nenhum lançamento neste período</div>`;
