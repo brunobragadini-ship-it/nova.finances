@@ -119,7 +119,6 @@ body::before {
 .menu-btn:active { transform: scale(0.94); }
 .menu-btn svg { width: 18px; height: 18px; }
 
-/* Barra do mês unificada (select centralizado + botões) */
 .header-month {
     display: flex;
     align-items: center;
@@ -150,7 +149,6 @@ body::before {
     padding: 6px 24px;
     -webkit-appearance: none;
     appearance: none;
-    /* Seta duplicada nos dois lados para o texto ficar realmente centralizado */
     background-image:
         url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='9 18 15 12 9 6'/></svg>"),
         url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
@@ -240,7 +238,6 @@ body::before {
 .resumo-title::before { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25)); }
 .resumo-title::after { background: linear-gradient(90deg, rgba(255,255,255,0.25), transparent); }
 
-/* Saldo no topo (centralizado) */
 .resumo-saldo {
     display: flex;
     flex-direction: column;
@@ -276,7 +273,6 @@ body::before {
 .resumo-saldo-value.positivo { color: var(--neon-green); text-shadow: 0 0 35px var(--neon-green-glow); }
 .resumo-saldo-value.negativo { color: var(--neon-red); text-shadow: 0 0 35px var(--neon-red-glow); }
 
-/* Entradas | Despesas embaixo (centralizado) */
 .resumo-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1006,6 +1002,216 @@ form button[type="submit"]:hover {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
+/* ============================================================
+   ============ DESKTOP LAYOUT (>= 1000px) ====================
+   ============================================================ */
+@media (min-width: 1000px) {
+
+    body {
+        padding-bottom: 40px; /* sem FAB grande no desktop, mantemos margem menor */
+    }
+
+    .container {
+        max-width: 1280px;
+        padding: 32px 32px 32px;
+        display: grid;
+        grid-template-columns: minmax(360px, 1fr) minmax(520px, 1.5fr);
+        grid-template-rows: auto auto 1fr;
+        gap: 20px 28px;
+        align-items: start;
+    }
+
+    /* Header ocupa as duas colunas */
+    .home-header {
+        grid-column: 1 / -1;
+        margin-bottom: 8px;
+        padding: 0;
+        grid-template-columns: auto 1fr auto;
+    }
+    /* O header-month deixa de esticar tanto — vira um bloco compacto */
+    .header-month {
+        justify-self: center;
+        min-width: 320px;
+        max-width: 420px;
+        padding: 6px 8px 6px 8px;
+    }
+    /* Botão de settings no canto esquerdo, mais destacado */
+    .menu-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+    }
+
+    /* Cria um espaço vazio no canto direito para equilibrar (espelho do menu-btn) */
+    .home-header::after {
+        content: '';
+        width: 46px;
+        height: 46px;
+    }
+
+    /* Resumo ocupa a coluna esquerda */
+    .resumo-card {
+        grid-column: 1 / 2;
+        grid-row: 2 / 3;
+        margin-bottom: 0;
+    }
+
+    /* Period Grid ocupa a coluna esquerda, logo abaixo do resumo */
+    .period-grid {
+        grid-column: 1 / 2;
+        grid-row: 3 / 4;
+        margin-bottom: 0;
+    }
+
+    /* Área de lançamentos ocupa a coluna direita inteira */
+    /* Agrupamos os elementos de "Lançamentos" via seletores */
+
+    /* O section-head (título "Lançamentos" + botão Novo) */
+    .container > .section-head {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+        margin-bottom: 0;
+        padding: 0;
+        align-self: end;
+    }
+
+    /* A lista de status (loading) */
+    .container > #status {
+        grid-column: 2 / 3;
+        grid-row: 3 / 4;
+    }
+
+    /* Todos os list-groups dentro do container principal vão para a coluna direita */
+    .container > .list-group {
+        grid-column: 2 / 3;
+        margin-bottom: 14px;
+    }
+
+    /* Posicionamento em cascata dos list-groups dentro da coluna direita */
+    .container > .list-group:nth-of-type(1) { grid-row: 3 / 4; }
+    .container > .list-group:nth-of-type(2) { grid-row: 4 / 5; }
+    .container > .list-group:nth-of-type(3) { grid-row: 5 / 6; }
+
+    /* Precisamos empilhar: o grid padrão coloca cada list-group em linha própria,
+       então trocamos para um fluxo mais inteligente — usamos grid-auto-rows */
+    
+    /* Alternativa mais robusta: reorganizar em um fluxo de coluna direita */
+    /* Porém como queremos manter ordem simples, faremos o seguinte: */
+    
+    /* Simplificação: o container vira 2 colunas e a coluna direita tem um wrapper virtual.
+       Como não temos wrapper, usamos grid-row específicos: */
+
+    /* Reset para garantir layout coerente */
+    .container {
+        grid-template-areas:
+            "header header"
+            "resumo lanc-head"
+            "period lanc-1"
+            "period lanc-2"
+            "period lanc-3"
+            "period lanc-cartao";
+    }
+
+    .home-header { grid-area: header; }
+    .resumo-card { grid-area: resumo; }
+    .period-grid { grid-area: period; }
+
+    .container > .section-head { grid-area: lanc-head; }
+    .container > .list-group:nth-of-type(1) { grid-area: lanc-1; }
+    .container > .list-group:nth-of-type(2) { grid-area: lanc-2; }
+    .container > .list-group:nth-of-type(3) { grid-area: lanc-cartao; }
+
+    /* A coluna direita precisa empilhar os blocos com espaçamento */
+    .container > .section-head,
+    .container > .list-group {
+        margin-bottom: 0;
+    }
+
+    /* Ajusta altura máxima para caber bem */
+    .container > .list-group ul {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .container > .list-group ul::-webkit-scrollbar { width: 5px; }
+    .container > .list-group ul::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+    /* Ajusta o FAB para ficar menos intrusivo no desktop */
+    .fab-button {
+        bottom: 32px;
+        right: 32px;
+        width: 56px;
+        height: 56px;
+        border-radius: 18px;
+        font-size: 26px;
+    }
+
+    /* Tipografia um pouco maior para desktop */
+    .resumo-saldo-value {
+        font-size: 44px;
+    }
+
+    /* Aumenta um pouco os cards para preencher melhor */
+    .period-card {
+        padding: 22px 20px 20px;
+    }
+    .period-value {
+        font-size: 22px;
+    }
+    .period-line {
+        font-size: 13px;
+    }
+    .period-line strong {
+        font-size: 13.5px;
+    }
+
+    /* Resumo mais "respirável" no desktop */
+    .resumo-card {
+        padding: 30px 28px 26px;
+    }
+    .resumo-item {
+        padding: 20px 14px;
+    }
+    .resumo-value {
+        font-size: 20px;
+    }
+
+    /* Lista de lançamentos mais compacta no desktop */
+    li.item {
+        padding: 14px 16px;
+    }
+    .item-desc {
+        font-size: 14.5px;
+    }
+    .item-value {
+        font-size: 14.5px;
+    }
+
+    /* Empty state no desktop */
+    .empty-state {
+        padding: 40px 20px;
+    }
+
+    /* Cartão fatura sem esticar demais */
+    .cartao-card-block {
+        padding: 20px;
+    }
+}
+
+/* Ajuste fino para telas muito largas */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1440px;
+        gap: 24px 36px;
+        padding: 40px 48px;
+    }
+    .resumo-saldo-value {
+        font-size: 52px;
+    }
+    .period-value {
+        font-size: 24px;
+    }
+}
 </style>
 </head>
 <body>
@@ -1014,7 +1220,7 @@ form button[type="submit"]:hover {
 
 <div class="container">
 
-    <!-- ============ HEADER: ⚙️  [mês + Novo + Excluir] ============ -->
+    <!-- ============ HEADER ============ -->
     <header class="home-header">
         <button class="menu-btn" onclick="abrirModalConfig()" aria-label="Menu">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1046,13 +1252,11 @@ form button[type="submit"]:hover {
     <section class="resumo-card">
         <div class="resumo-title">Resumo do mês</div>
 
-        <!-- Saldo no topo -->
         <div class="resumo-saldo">
             <span class="resumo-saldo-label">Saldo</span>
             <span class="resumo-saldo-value" id="kpiHomeSaldo">R$ 0,00</span>
         </div>
 
-        <!-- Entradas | Despesas embaixo -->
         <div class="resumo-grid">
             <div class="resumo-item">
                 <span class="resumo-label">Entradas</span>
@@ -1066,7 +1270,7 @@ form button[type="submit"]:hover {
         </div>
     </section>
 
-    <!-- ============ PERIOD GRID: Dia 05 | Dia 20 ============ -->
+    <!-- ============ PERIOD GRID ============ -->
     <div class="period-grid">
         <div class="period-card">
             <div class="period-head"><span class="period-badge">Dia 05</span></div>
@@ -1086,10 +1290,8 @@ form button[type="submit"]:hover {
         </div>
     </div>
 
-    <!-- MEUS CARTÕES: container oculto (JS escreve nele) -->
+    <!-- containers ocultos (JS escreve) -->
     <div id="homeCartoesList" style="display:none;"></div>
-
-    <!-- MINHAS CONTAS: container oculto (JS escreve nele) -->
     <div id="homeContasList" style="display:none;"></div>
 
     <!-- ============ LANÇAMENTOS ============ -->
@@ -1119,7 +1321,7 @@ form button[type="submit"]:hover {
         <div id="cartaoContent"></div>
     </div>
 
-    <!-- HERO oculto (JS escreve aqui) -->
+    <!-- HERO oculto -->
     <div class="hero-card" aria-hidden="true">
         <div class="hero-value" id="resTot">R$ 0,00</div>
         <div class="hero-meta-value up" id="rTot">R$ 0,00</div>
@@ -1605,7 +1807,6 @@ form button[type="submit"]:hover {
         gerenciarSyncState(-1);
     }
 
-    // ============ RENDERIZAR INÍCIO ============
     function renderizarInicio(dadosMes, dadosFatura) {
         let renda = 0, despesasPagas = 0, despesasPendentes = 0, despesasCartao = 0;
         dadosMes.forEach(item => {
@@ -1634,7 +1835,6 @@ form button[type="submit"]:hover {
             elSaldo.classList.toggle('negativo', saldoFinal < 0);
         }
 
-        // Meus cartões (container oculto)
         const porCartao = {};
         dadosFatura.forEach(d => {
             const c = d.cartao || 'Sem nome';
@@ -1672,14 +1872,12 @@ form button[type="submit"]:hover {
             }
         }
 
-        // Minhas contas (container oculto)
         const contasContainer = document.getElementById('homeContasList');
         if (contasContainer) {
             contasContainer.innerHTML = '';
         }
     }
 
-    // ============ RENDERIZAR LANÇAMENTOS ============
     function renderizarTela(dadosLocais, dadosFatura) {
         let r05 = 0, d05 = 0, r20 = 0, d20 = 0;
         const ul05 = document.getElementById('lista05');
