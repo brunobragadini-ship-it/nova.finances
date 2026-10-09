@@ -87,13 +87,13 @@ body::before {
 /* ============ HEADER ============ */
 .home-header {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 18px;
     padding: 4px 4px 0;
 }
-.menu-btn, .icon-btn {
+.menu-btn {
     width: 42px;
     height: 42px;
     border-radius: 14px;
@@ -109,23 +109,22 @@ body::before {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
 }
-.menu-btn:hover, .icon-btn:hover {
+.menu-btn:hover {
     color: var(--white);
     border-color: var(--border-2);
     background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 22px rgba(255, 255, 255, 0.12);
     transform: translateY(-1px);
 }
-.menu-btn:active, .icon-btn:active { transform: scale(0.94); }
-.menu-btn svg, .icon-btn svg { width: 18px; height: 18px; }
+.menu-btn:active { transform: scale(0.94); }
+.menu-btn svg { width: 18px; height: 18px; }
 
-/* Selector no centro do header */
+/* Barra do mês unificada (select + botões) */
 .header-month {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 8px;
-    padding: 10px 14px;
+    padding: 5px 5px 5px 14px;
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -134,16 +133,16 @@ body::before {
     min-width: 0;
     overflow: hidden;
 }
-.header-month svg { width: 14px; height: 14px; color: var(--white); flex-shrink: 0; opacity: 0.7; }
-.header-month-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    white-space: nowrap;
+.header-month > svg.cal-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--white);
+    flex-shrink: 0;
+    opacity: 0.7;
 }
 #selectAba {
+    flex: 1;
+    min-width: 0;
     background: transparent;
     color: var(--text);
     border: none;
@@ -153,57 +152,48 @@ body::before {
     letter-spacing: -0.02em;
     outline: none;
     cursor: pointer;
-    padding: 0 20px 0 0;
+    padding: 4px 20px 4px 0;
     -webkit-appearance: none;
     appearance: none;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
     background-repeat: no-repeat;
     background-position: right center;
     background-size: 12px;
-    min-width: 0;
-    max-width: 120px;
 }
 #selectAba option { background: #0a0a0a; color: var(--text); }
-
-/* Month actions bar (botões de criar/excluir mês) */
-.month-actions-bar {
+.header-month-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 6px;
-    margin-bottom: 16px;
-    padding: 0 4px;
+    gap: 4px;
+    flex-shrink: 0;
 }
-.btn-mini {
-    height: 34px;
-    padding: 0 12px;
+.btn-icon-sm {
+    width: 32px;
+    height: 32px;
     border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.03);
     color: var(--text-2);
-    font-size: 12px;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    display: grid;
+    place-items: center;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
 }
-.btn-mini:hover {
+.btn-icon-sm:hover {
     color: var(--white);
+    background: rgba(255, 255, 255, 0.09);
     border-color: var(--border-2);
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 18px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.1);
 }
-.btn-mini:active { transform: scale(0.96); }
-.btn-mini.danger:hover {
+.btn-icon-sm:active { transform: scale(0.94); }
+.btn-icon-sm.danger:hover {
     color: var(--neon-red);
     border-color: var(--neon-red);
     background: var(--neon-red-soft);
-    box-shadow: 0 0 18px var(--neon-red-glow);
+    box-shadow: 0 0 16px var(--neon-red-glow);
 }
-.btn-mini svg { width: 12px; height: 12px; }
+.btn-icon-sm svg { width: 14px; height: 14px; }
 
 /* ============ RESUMO DO MÊS ============ */
 .resumo-card {
@@ -214,7 +204,7 @@ body::before {
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
     padding: 24px 22px 22px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     overflow: hidden;
     box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
@@ -237,7 +227,7 @@ body::before {
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--white-soft);
-    margin-bottom: 22px;
+    margin-bottom: 20px;
     position: relative;
     z-index: 1;
 }
@@ -246,18 +236,49 @@ body::before {
     flex: 1;
     max-width: 50px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25));
 }
-.resumo-title::after {
-    background: linear-gradient(90deg, rgba(255,255,255,0.25), transparent);
+.resumo-title::before { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25)); }
+.resumo-title::after { background: linear-gradient(90deg, rgba(255,255,255,0.25), transparent); }
+
+/* Saldo no topo */
+.resumo-saldo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border-3);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
 }
+.resumo-saldo-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-3);
+}
+.resumo-saldo-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(32px, 9vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+}
+.resumo-saldo-value.positivo { color: var(--neon-green); text-shadow: 0 0 35px var(--neon-green-glow); }
+.resumo-saldo-value.negativo { color: var(--neon-red); text-shadow: 0 0 35px var(--neon-red-glow); }
+
+/* Entradas | Despesas embaixo */
 .resumo-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     position: relative;
     z-index: 1;
-    margin-bottom: 22px;
 }
 .resumo-item {
     display: flex;
@@ -299,72 +320,8 @@ body::before {
     font-variant-numeric: tabular-nums;
 }
 
-/* Logo marca no meio */
-.resumo-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 22px;
-    position: relative;
-    z-index: 1;
-}
-.resumo-logo::before, .resumo-logo::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-}
-.resumo-avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ffffff 0%, #b4b4c0 100%);
-    display: grid;
-    place-items: center;
-    color: #000;
-    font-weight: 700;
-    font-size: 18px;
-    font-family: 'Space Grotesk', sans-serif;
-    box-shadow: 0 0 24px rgba(255, 255, 255, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-    flex-shrink: 0;
-}
-
-/* Saldo */
-.resumo-saldo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-3);
-    position: relative;
-    z-index: 1;
-}
-.resumo-saldo-label {
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-3);
-}
-.resumo-saldo-value {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(28px, 8vw, 36px);
-    font-weight: 700;
-    letter-spacing: -0.045em;
-    line-height: 1;
-    color: var(--text);
-    font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
-}
-.resumo-saldo-value.positivo { color: var(--neon-green); text-shadow: 0 0 35px var(--neon-green-glow); }
-.resumo-saldo-value.negativo { color: var(--neon-red); text-shadow: 0 0 35px var(--neon-red-glow); }
-
-/* ============ HERO (oculto, mantido só pra não quebrar o JS) ============ */
-.hero-card {
-    display: none !important;
-}
+/* ============ HERO (oculto — mantido pro JS não quebrar) ============ */
+.hero-card { display: none !important; }
 
 /* ============ PERIOD GRID ============ */
 .period-grid {
@@ -1190,7 +1147,7 @@ form button[type="submit"]:hover {
 
 <div class="container">
 
-    <!-- ============ HEADER: ⚙️  MÊS  ➕ ============ -->
+    <!-- ============ HEADER: ⚙️  [mês + Novo + Excluir] ============ -->
     <header class="home-header">
         <button class="menu-btn" onclick="abrirModalConfig()" aria-label="Menu">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1200,46 +1157,41 @@ form button[type="submit"]:hover {
         </button>
 
         <div class="header-month">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="cal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
                 <line x1="8" y1="2" x2="8" y2="6"/>
                 <line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
             <select id="selectAba" onchange="trocarAba(this.value)"></select>
+            <div class="header-month-actions">
+                <button class="btn-icon-sm" onclick="criarNovaAba()" title="Novo mês">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                </button>
+                <button class="btn-icon-sm danger" onclick="excluirAbaAtual()" title="Excluir mês">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                    </svg>
+                </button>
+            </div>
         </div>
-
-        <button class="icon-btn" onclick="abrirModalFormulario()" aria-label="Novo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-        </button>
     </header>
-
-    <!-- Botões de mês (criar / excluir) -->
-    <div class="month-actions-bar">
-        <button class="btn-mini" onclick="criarNovaAba()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Novo mês
-        </button>
-        <button class="btn-mini danger" onclick="excluirAbaAtual()" title="Excluir mês">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-            </svg>
-            Excluir
-        </button>
-    </div>
 
     <!-- ============ RESUMO DO MÊS ============ -->
     <section class="resumo-card">
         <div class="resumo-title">Resumo do mês</div>
 
-        <!-- Entradas | Despesas -->
+        <!-- Saldo no topo -->
+        <div class="resumo-saldo">
+            <span class="resumo-saldo-label">Saldo</span>
+            <span class="resumo-saldo-value" id="kpiHomeSaldo">R$ 0,00</span>
+        </div>
+
+        <!-- Entradas | Despesas embaixo -->
         <div class="resumo-grid">
             <div class="resumo-item">
                 <span class="resumo-label">Entradas</span>
@@ -1250,17 +1202,6 @@ form button[type="submit"]:hover {
                 <span class="resumo-value red" id="kpiHomeAPagar">R$ 0,00</span>
                 <span class="resumo-sub">pago <span id="kpiHomePago">R$ 0,00</span></span>
             </div>
-        </div>
-
-        <!-- Logo / Avatar -->
-        <div class="resumo-logo">
-            <div class="resumo-avatar" id="userAvatar">B</div>
-        </div>
-
-        <!-- Saldo -->
-        <div class="resumo-saldo">
-            <span class="resumo-saldo-label">Saldo</span>
-            <span class="resumo-saldo-value" id="kpiHomeSaldo">R$ 0,00</span>
         </div>
     </section>
 
@@ -1293,14 +1234,8 @@ form button[type="submit"]:hover {
         <div id="homeCartoesList"></div>
     </section>
 
-    <!-- ============ MINHAS CONTAS ============ -->
-    <section class="home-section">
-        <div class="section-header-home">
-            <h3 class="section-title-home">Minhas contas</h3>
-            <button class="link-add-home" onclick="abrirModalFormulario()">adicionar</button>
-        </div>
-        <div id="homeContasList"></div>
-    </section>
+    <!-- MINHAS CONTAS: container oculto (JS ainda escreve nele, mas não aparece) -->
+    <div id="homeContasList" style="display:none;"></div>
 
     <!-- ============ LANÇAMENTOS ============ -->
     <div class="section-head">
@@ -1329,20 +1264,11 @@ form button[type="submit"]:hover {
         <div id="cartaoContent"></div>
     </div>
 
-    <!-- ============ HERO (oculto — mantido só pra não quebrar o JS) ============ -->
+    <!-- HERO oculto (JS escreve aqui) -->
     <div class="hero-card" aria-hidden="true">
-        <div class="hero-label">Fechamento</div>
         <div class="hero-value" id="resTot">R$ 0,00</div>
-        <div class="hero-meta">
-            <div class="hero-meta-item">
-                <div class="hero-meta-label">Renda</div>
-                <div class="hero-meta-value up" id="rTot">R$ 0,00</div>
-            </div>
-            <div class="hero-meta-item">
-                <div class="hero-meta-label">Despesas</div>
-                <div class="hero-meta-value" id="dTot">R$ 0,00</div>
-            </div>
-        </div>
+        <div class="hero-meta-value up" id="rTot">R$ 0,00</div>
+        <div class="hero-meta-value" id="dTot">R$ 0,00</div>
     </div>
 
 </div>
@@ -1376,12 +1302,11 @@ form button[type="submit"]:hover {
                     <select id="selectCartao"></select>
                     <label for="selectMesFatura" style="margin-top: 12px;">Mês da Fatura</label>
                     <select id="selectMesFatura"></select>
-                    <button type="button" class="btn-mini" onclick="criarNovoCartao()" style="margin-top: 12px; width: 100%; justify-content: center; padding: 10px; height: 42px;">
+                    <button type="button" class="btn-icon-sm" onclick="criarNovoCartao()" style="margin-top: 12px; width: 100%; justify-content: center; padding: 10px; height: 42px; width: 100%;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"/>
                             <line x1="5" y1="12" x2="19" y2="12"/>
                         </svg>
-                        Adicionar novo cartão
                     </button>
                 </div>
             </div>
@@ -1417,7 +1342,7 @@ form button[type="submit"]:hover {
         <div class="config-block">
             <p class="config-block-title">Cartões de crédito</p>
             <div id="listaCartoesConfig" style="display: flex; flex-direction: column; gap: 6px;"></div>
-            <button type="button" class="btn-mini" onclick="criarNovoCartao()" style="margin-top: 12px; width: 100%; justify-content: center; padding: 10px; height: 42px;">
+            <button type="button" class="btn-primary" onclick="criarNovoCartao()" style="margin-top: 12px; width: 100%; justify-content: center; padding: 10px; height: 42px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
@@ -1590,9 +1515,12 @@ form button[type="submit"]:hover {
         atualizarCabecalho();
     }
     function atualizarCabecalho() {
-        const primeiroNome = nomeUsuario.split(' ')[0];
+        // Não há mais avatar no header — função mantida para compatibilidade
         const elAvatar = document.getElementById('userAvatar');
-        if (elAvatar) elAvatar.textContent = primeiroNome.charAt(0).toUpperCase();
+        if (elAvatar) {
+            const primeiroNome = nomeUsuario.split(' ')[0];
+            elAvatar.textContent = primeiroNome.charAt(0).toUpperCase();
+        }
     }
 
     async function inicializarApp() {
@@ -1887,50 +1815,40 @@ form button[type="submit"]:hover {
             }).join('');
         }
 
-        // Minhas contas
+        // Minhas contas (container oculto — só não dá erro)
         const contasContainer = document.getElementById('homeContasList');
-        const maxConta = Math.max(renda, totalDespesas, 1);
-        contasContainer.innerHTML = `
-            <div class="card-item-home">
-                <div class="card-logo green">R</div>
-                <div class="card-info-home">
-                    <div class="card-row-home">
-                        <span class="card-name-home">Entradas</span>
-                        <span class="card-value-home" style="color: var(--neon-green);">${formatarMoeda(renda)}</span>
+        if (contasContainer) {
+            const maxConta = Math.max(renda, totalDespesas, 1);
+            contasContainer.innerHTML = `
+                <div class="card-item-home">
+                    <div class="card-logo green">R</div>
+                    <div class="card-info-home">
+                        <div class="card-row-home">
+                            <span class="card-name-home">Entradas</span>
+                            <span class="card-value-home" style="color: var(--neon-green);">${formatarMoeda(renda)}</span>
+                        </div>
                     </div>
-                    <div class="card-progress-wrap">
-                        <div class="card-progress green" style="width: ${(renda / maxConta) * 100}%"></div>
-                    </div>
-                    <div class="card-meta-home">Total recebido em ${escapeHtml(abaSelecionada)}</div>
                 </div>
-            </div>
-            <div class="card-item-home">
-                <div class="card-logo red">D</div>
-                <div class="card-info-home">
-                    <div class="card-row-home">
-                        <span class="card-name-home">Despesas</span>
-                        <span class="card-value-home" style="color: var(--neon-red);">${formatarMoeda(totalDespesas)}</span>
+                <div class="card-item-home">
+                    <div class="card-logo red">D</div>
+                    <div class="card-info-home">
+                        <div class="card-row-home">
+                            <span class="card-name-home">Despesas</span>
+                            <span class="card-value-home" style="color: var(--neon-red);">${formatarMoeda(totalDespesas)}</span>
+                        </div>
                     </div>
-                    <div class="card-progress-wrap">
-                        <div class="card-progress red" style="width: ${(totalDespesas / maxConta) * 100}%"></div>
-                    </div>
-                    <div class="card-meta-home">Total gasto em ${escapeHtml(abaSelecionada)}</div>
                 </div>
-            </div>
-            <div class="card-item-home">
-                <div class="card-logo">S</div>
-                <div class="card-info-home">
-                    <div class="card-row-home">
-                        <span class="card-name-home">Saldo do mês</span>
-                        <span class="card-value-home" style="color: ${saldoFinal >= 0 ? 'var(--neon-green)' : 'var(--neon-red)'};">${formatarMoeda(saldoFinal)}</span>
+                <div class="card-item-home">
+                    <div class="card-logo">S</div>
+                    <div class="card-info-home">
+                        <div class="card-row-home">
+                            <span class="card-name-home">Saldo do mês</span>
+                            <span class="card-value-home" style="color: ${saldoFinal >= 0 ? 'var(--neon-green)' : 'var(--neon-red)'};">${formatarMoeda(saldoFinal)}</span>
+                        </div>
                     </div>
-                    <div class="card-progress-wrap">
-                        <div class="card-progress" style="width: ${Math.min(Math.abs(saldoFinal) / maxConta * 100, 100)}%"></div>
-                    </div>
-                    <div class="card-meta-home">Resultado final de ${escapeHtml(abaSelecionada)}</div>
                 </div>
-            </div>
-        `;
+            `;
+        }
     }
 
     // ============ RENDERIZAR LANÇAMENTOS ============
