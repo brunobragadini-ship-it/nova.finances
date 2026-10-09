@@ -119,26 +119,19 @@ body::before {
 .menu-btn:active { transform: scale(0.94); }
 .menu-btn svg { width: 18px; height: 18px; }
 
-/* Barra do mês unificada (select + botões) */
+/* Barra do mês unificada (select centralizado + botões) */
 .header-month {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 5px 5px 14px;
+    padding: 5px 6px 5px 6px;
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 20px;
     min-width: 0;
     overflow: hidden;
-}
-.header-month > svg.cal-icon {
-    width: 14px;
-    height: 14px;
-    color: var(--white);
-    flex-shrink: 0;
-    opacity: 0.7;
 }
 #selectAba {
     flex: 1;
@@ -152,15 +145,21 @@ body::before {
     letter-spacing: -0.02em;
     outline: none;
     cursor: pointer;
-    padding: 4px 20px 4px 0;
+    text-align: center;
+    text-align-last: center;
+    padding: 6px 24px;
     -webkit-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right center;
-    background-size: 12px;
+    /* Seta duplicada nos dois lados para o texto ficar realmente centralizado */
+    background-image:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='9 18 15 12 9 6'/></svg>"),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat, no-repeat;
+    background-position: left center, right center;
+    background-size: 12px, 12px;
+    opacity: 1;
 }
-#selectAba option { background: #0a0a0a; color: var(--text); }
+#selectAba option { background: #0a0a0a; color: var(--text); text-align: center; }
 .header-month-actions {
     display: flex;
     gap: 4px;
@@ -169,7 +168,7 @@ body::before {
 .btn-icon-sm {
     width: 32px;
     height: 32px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
     color: var(--text-2);
@@ -207,6 +206,7 @@ body::before {
     margin-bottom: 16px;
     overflow: hidden;
     box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    text-align: center;
 }
 .resumo-card::before {
     content: '';
@@ -240,11 +240,13 @@ body::before {
 .resumo-title::before { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25)); }
 .resumo-title::after { background: linear-gradient(90deg, rgba(255,255,255,0.25), transparent); }
 
-/* Saldo no topo */
+/* Saldo no topo (centralizado) */
 .resumo-saldo {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 8px;
     padding-bottom: 22px;
     border-bottom: 1px solid var(--border-3);
@@ -258,6 +260,7 @@ body::before {
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-3);
+    text-align: center;
 }
 .resumo-saldo-value {
     font-family: 'Space Grotesk', sans-serif;
@@ -268,11 +271,12 @@ body::before {
     color: var(--text);
     font-variant-numeric: tabular-nums;
     text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+    text-align: center;
 }
 .resumo-saldo-value.positivo { color: var(--neon-green); text-shadow: 0 0 35px var(--neon-green-glow); }
 .resumo-saldo-value.negativo { color: var(--neon-red); text-shadow: 0 0 35px var(--neon-red-glow); }
 
-/* Entradas | Despesas embaixo */
+/* Entradas | Despesas embaixo (centralizado) */
 .resumo-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -284,8 +288,10 @@ body::before {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 8px;
-    padding: 14px 10px;
+    padding: 16px 10px;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border-3);
     border-radius: var(--radius);
@@ -296,6 +302,7 @@ body::before {
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--text-3);
+    text-align: center;
 }
 .resumo-value {
     font-family: 'Space Grotesk', sans-serif;
@@ -304,6 +311,7 @@ body::before {
     letter-spacing: -0.025em;
     font-variant-numeric: tabular-nums;
     line-height: 1.1;
+    text-align: center;
 }
 .resumo-value.green { color: var(--neon-green); text-shadow: 0 0 16px var(--neon-green-glow); }
 .resumo-value.red { color: var(--neon-red); text-shadow: 0 0 16px var(--neon-red-glow); }
@@ -312,6 +320,7 @@ body::before {
     color: var(--text-4);
     font-weight: 500;
     letter-spacing: 0.02em;
+    text-align: center;
 }
 .resumo-sub span {
     color: var(--neon-green);
@@ -320,7 +329,7 @@ body::before {
     font-variant-numeric: tabular-nums;
 }
 
-/* ============ HERO (oculto — mantido pro JS não quebrar) ============ */
+/* ============ HERO (oculto) ============ */
 .hero-card { display: none !important; }
 
 /* ============ PERIOD GRID ============ */
@@ -394,148 +403,6 @@ body::before {
 }
 .period-line strong.up { color: var(--neon-green); }
 .period-line strong.down { color: var(--neon-red); }
-
-/* ============ SECTION HEADER HOME ============ */
-.home-section { margin-bottom: 22px; }
-.section-header-home {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    padding: 0 4px;
-}
-.section-title-home {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text);
-    margin: 0;
-    font-family: 'Space Grotesk', sans-serif;
-    letter-spacing: -0.015em;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.section-title-home::before {
-    content: '';
-    width: 3px;
-    height: 14px;
-    background: var(--white);
-    border-radius: 2px;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
-}
-.link-add-home {
-    font-size: 11px;
-    color: var(--white);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    padding: 5px 12px;
-    border-radius: 8px;
-    transition: all 0.18s;
-    opacity: 0.7;
-}
-.link-add-home:hover { background: rgba(255,255,255,0.06); opacity: 1; }
-
-.card-item-home {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    margin-bottom: 8px;
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.card-item-home:hover {
-    border-color: var(--border-2);
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-1px);
-}
-.card-logo {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ffffff 0%, #c4c4c4 100%);
-    display: grid;
-    place-items: center;
-    color: #000;
-    font-weight: 700;
-    font-size: 15px;
-    font-family: 'Space Grotesk', sans-serif;
-    flex-shrink: 0;
-    box-shadow: 0 0 18px rgba(255, 255, 255, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-}
-.card-logo.green {
-    background: linear-gradient(135deg, var(--neon-green), #16A34A);
-    color: #000;
-    box-shadow: 0 0 18px var(--neon-green-glow);
-}
-.card-logo.red {
-    background: linear-gradient(135deg, var(--neon-red), #DC2626);
-    color: #fff;
-    box-shadow: 0 0 18px var(--neon-red-glow);
-}
-.card-info-home { flex: 1; min-width: 0; }
-.card-row-home {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-.card-name-home {
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.015em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.card-value-home {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--text);
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
-}
-.card-progress-wrap {
-    height: 3px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 6px;
-}
-.card-progress {
-    height: 100%;
-    background: linear-gradient(90deg, #ffffff, rgba(255,255,255,0.6));
-    border-radius: 2px;
-    box-shadow: 0 0 10px rgba(255,255,255,0.5);
-    transition: width 0.5s ease;
-}
-.card-progress.green { background: linear-gradient(90deg, var(--neon-green), #16A34A); box-shadow: 0 0 10px var(--neon-green-glow); }
-.card-progress.red { background: linear-gradient(90deg, var(--neon-red), #DC2626); box-shadow: 0 0 10px var(--neon-red-glow); }
-.card-meta-home {
-    font-size: 10.5px;
-    color: var(--text-4);
-    font-weight: 500;
-}
-.empty-home {
-    text-align: center;
-    color: var(--text-3);
-    font-size: 12px;
-    padding: 22px;
-    background: rgba(255,255,255,0.02);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-    font-weight: 500;
-    backdrop-filter: blur(10px);
-}
 
 /* ============ SECTIONS ============ */
 .section-head {
@@ -1157,12 +1024,6 @@ form button[type="submit"]:hover {
         </button>
 
         <div class="header-month">
-            <svg class="cal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
             <select id="selectAba" onchange="trocarAba(this.value)"></select>
             <div class="header-month-actions">
                 <button class="btn-icon-sm" onclick="criarNovaAba()" title="Novo mês">
@@ -1225,16 +1086,10 @@ form button[type="submit"]:hover {
         </div>
     </div>
 
-    <!-- ============ MEUS CARTÕES ============ -->
-    <section class="home-section">
-        <div class="section-header-home">
-            <h3 class="section-title-home">Meus cartões</h3>
-            <button class="link-add-home" onclick="criarNovoCartao()">adicionar</button>
-        </div>
-        <div id="homeCartoesList"></div>
-    </section>
+    <!-- MEUS CARTÕES: container oculto (JS escreve nele) -->
+    <div id="homeCartoesList" style="display:none;"></div>
 
-    <!-- MINHAS CONTAS: container oculto (JS ainda escreve nele, mas não aparece) -->
+    <!-- MINHAS CONTAS: container oculto (JS escreve nele) -->
     <div id="homeContasList" style="display:none;"></div>
 
     <!-- ============ LANÇAMENTOS ============ -->
@@ -1302,11 +1157,12 @@ form button[type="submit"]:hover {
                     <select id="selectCartao"></select>
                     <label for="selectMesFatura" style="margin-top: 12px;">Mês da Fatura</label>
                     <select id="selectMesFatura"></select>
-                    <button type="button" class="btn-icon-sm" onclick="criarNovoCartao()" style="margin-top: 12px; width: 100%; justify-content: center; padding: 10px; height: 42px; width: 100%;">
+                    <button type="button" class="btn-primary" onclick="criarNovoCartao()" style="margin-top: 12px; width: 100%; justify-content: center; padding: 10px; height: 42px;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"/>
                             <line x1="5" y1="12" x2="19" y2="12"/>
                         </svg>
+                        Adicionar novo cartão
                     </button>
                 </div>
             </div>
@@ -1515,7 +1371,6 @@ form button[type="submit"]:hover {
         atualizarCabecalho();
     }
     function atualizarCabecalho() {
-        // Não há mais avatar no header — função mantida para compatibilidade
         const elAvatar = document.getElementById('userAvatar');
         if (elAvatar) {
             const primeiroNome = nomeUsuario.split(' ')[0];
@@ -1779,7 +1634,7 @@ form button[type="submit"]:hover {
             elSaldo.classList.toggle('negativo', saldoFinal < 0);
         }
 
-        // Meus cartões
+        // Meus cartões (container oculto)
         const porCartao = {};
         dadosFatura.forEach(d => {
             const c = d.cartao || 'Sem nome';
@@ -1788,66 +1643,39 @@ form button[type="submit"]:hover {
             porCartao[c].qtd++;
         });
         const cartoesContainer = document.getElementById('homeCartoesList');
-        const nomesCartoes = Object.keys(porCartao).sort((a, b) => a.localeCompare(b));
-        if (nomesCartoes.length === 0) {
-            cartoesContainer.innerHTML = `<div class="empty-home">Nenhum cartão com fatura em ${escapeHtml(abaSelecionada)}</div>`;
-        } else {
-            const maxTotal = Math.max(...nomesCartoes.map(c => porCartao[c].total), 1);
-            cartoesContainer.innerHTML = nomesCartoes.map(nome => {
-                const info = porCartao[nome];
-                const pct = (info.total / maxTotal) * 100;
-                const inicial = nome.charAt(0).toUpperCase();
-                return `
-                    <div class="card-item-home">
-                        <div class="card-logo">${escapeHtml(inicial)}</div>
-                        <div class="card-info-home">
-                            <div class="card-row-home">
-                                <span class="card-name-home">${escapeHtml(nome)}</span>
-                                <span class="card-value-home" style="color: var(--neon-red);">${formatarMoeda(info.total)}</span>
+        if (cartoesContainer) {
+            const nomesCartoes = Object.keys(porCartao).sort((a, b) => a.localeCompare(b));
+            if (nomesCartoes.length === 0) {
+                cartoesContainer.innerHTML = `<div class="empty-home">Nenhum cartão com fatura em ${escapeHtml(abaSelecionada)}</div>`;
+            } else {
+                const maxTotal = Math.max(...nomesCartoes.map(c => porCartao[c].total), 1);
+                cartoesContainer.innerHTML = nomesCartoes.map(nome => {
+                    const info = porCartao[nome];
+                    const pct = (info.total / maxTotal) * 100;
+                    const inicial = nome.charAt(0).toUpperCase();
+                    return `
+                        <div class="card-item-home">
+                            <div class="card-logo">${escapeHtml(inicial)}</div>
+                            <div class="card-info-home">
+                                <div class="card-row-home">
+                                    <span class="card-name-home">${escapeHtml(nome)}</span>
+                                    <span class="card-value-home" style="color: var(--neon-red);">${formatarMoeda(info.total)}</span>
+                                </div>
+                                <div class="card-progress-wrap">
+                                    <div class="card-progress red" style="width: ${pct}%"></div>
+                                </div>
+                                <div class="card-meta-home">${info.qtd} ${info.qtd === 1 ? 'lançamento' : 'lançamentos'} na fatura</div>
                             </div>
-                            <div class="card-progress-wrap">
-                                <div class="card-progress red" style="width: ${pct}%"></div>
-                            </div>
-                            <div class="card-meta-home">${info.qtd} ${info.qtd === 1 ? 'lançamento' : 'lançamentos'} na fatura</div>
                         </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }
         }
 
-        // Minhas contas (container oculto — só não dá erro)
+        // Minhas contas (container oculto)
         const contasContainer = document.getElementById('homeContasList');
         if (contasContainer) {
-            const maxConta = Math.max(renda, totalDespesas, 1);
-            contasContainer.innerHTML = `
-                <div class="card-item-home">
-                    <div class="card-logo green">R</div>
-                    <div class="card-info-home">
-                        <div class="card-row-home">
-                            <span class="card-name-home">Entradas</span>
-                            <span class="card-value-home" style="color: var(--neon-green);">${formatarMoeda(renda)}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-item-home">
-                    <div class="card-logo red">D</div>
-                    <div class="card-info-home">
-                        <div class="card-row-home">
-                            <span class="card-name-home">Despesas</span>
-                            <span class="card-value-home" style="color: var(--neon-red);">${formatarMoeda(totalDespesas)}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-item-home">
-                    <div class="card-logo">S</div>
-                    <div class="card-info-home">
-                        <div class="card-row-home">
-                            <span class="card-name-home">Saldo do mês</span>
-                            <span class="card-value-home" style="color: ${saldoFinal >= 0 ? 'var(--neon-green)' : 'var(--neon-red)'};">${formatarMoeda(saldoFinal)}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+            contasContainer.innerHTML = '';
         }
     }
 
